@@ -1,0 +1,34 @@
+﻿create table MAIL_QUEUE
+(
+  id        NUMBER(10) not null,
+  mail      VARCHAR2(64) not null,
+  from_mail VARCHAR2(64),
+  from_name VARCHAR2(64),
+  subject   VARCHAR2(1000),
+  message   VARCHAR2(4000),
+  file_name VARCHAR2(32),
+  file_blob BLOB,
+  smtp_errm VARCHAR2(1000)
+)
+;
+comment on column MAIL_QUEUE.id
+  is 'ID';
+comment on column MAIL_QUEUE.mail
+  is 'To (email)';
+comment on column MAIL_QUEUE.from_mail
+  is 'From (email)';
+comment on column MAIL_QUEUE.from_name
+  is 'From (name)';
+comment on column MAIL_QUEUE.subject
+  is 'Subject';
+comment on column MAIL_QUEUE.message
+  is 'Message body';
+comment on column MAIL_QUEUE.file_name
+  is 'Attachment name';
+comment on column MAIL_QUEUE.file_blob
+  is 'Attachment body';
+comment on column MAIL_QUEUE.smtp_errm
+  is 'SMTP error text';
+alter table MAIL_QUEUE
+  add constraint MAIL_QUEUE_PK primary key (ID);
+
