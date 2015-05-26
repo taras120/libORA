@@ -34,22 +34,37 @@
     return userenv('sessionid');
   end;
 
-  function this_server_host return varchar2 is
+  function server_db_name return varchar2 is
+  begin
+    return sys_context('userenv', 'db_name');
+  end;
+
+  function server_host_name return varchar2 is
   begin
     return sys_context('userenv', 'server_host');
   end;
 
-  function session_os_user return varchar2 is
+  function server_host_address return varchar2 is
+  begin
+    return utl_inaddr.get_host_address(server_host_name);
+  end;
+
+  function remote_os_user return varchar2 is
   begin
     return sys_context('userenv', 'os_user');
   end;
 
-  function session_terminal return varchar2 is
+  function remote_terminal return varchar2 is
   begin
     return sys_context('userenv', 'terminal');
   end;
 
-  function session_client_ip return varchar2 is
+  function remote_host_name return varchar2 is
+  begin
+    return sys_context('userenv', 'host');
+  end;
+
+  function remote_host_address return varchar2 is
   begin
     return sys_context('userenv', 'ip_address');
   end;

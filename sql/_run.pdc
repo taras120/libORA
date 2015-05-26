@@ -1,16 +1,11 @@
 ﻿------------------------------------------------------
 -- Export file for user IBPE                        --
--- Created by tlyuklyanchuk on 18.05.2015, 22:20:38 --
+-- Created by tlyuklyanchuk on 26.05.2015, 12:16:14 --
 ------------------------------------------------------
 
 set define off
 spool _run.log
 
-prompt
-prompt Creating table MAIL_QUEUE
-prompt =========================
-prompt
-@@mail_queue.tab
 prompt
 prompt Creating function TO_INT
 prompt ========================
@@ -132,10 +127,15 @@ prompt ======================
 prompt
 @@inc.prc
 prompt
-prompt Creating procedure PRINTF
-prompt =========================
+prompt Creating procedure PRINTLN
+prompt ==========================
 prompt
-@@printf.prc
+@@println.prc
+prompt
+prompt Creating procedure PRINTLNF
+prompt ===========================
+prompt
+@@printlnf.prc
 prompt
 prompt Creating procedure SWAP
 prompt =======================

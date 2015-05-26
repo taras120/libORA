@@ -6,22 +6,17 @@
   -- Taras Lyuklyanchuk
 
   -- constants
-  SPC          constant char(1) := chr(32);
-  AMP          constant char(1) := chr(38);
   XML_TRUE     constant varchar2(16) := 'true';
   XML_FALSE    constant varchar2(16) := 'false';
   FMT_DATE     constant varchar2(32) := 'yyyy-mm-dd';
   FMT_TIME     constant varchar2(32) := 'hh24:mi:ss';
-  FMT_DATETIME constant varchar2(32) := FMT_DATE || SPC || FMT_TIME;
+  FMT_DATETIME constant varchar2(32) := FMT_DATE || 'T' || FMT_TIME;
 
   -- types
   type t_cursor is ref cursor;
 
   -- парсер
-  function parse(p_xml clob) return xmltype;
-
-  -- парсер
-  function parse(p_xml clob) return dbms_xmldom.DOMDocument;
+  function parse(p_clob clob) return xmltype;
 
   -- парсер
   function parse(p_cursor t_cursor) return xmltype;
@@ -38,6 +33,10 @@
   -- печать xml
   procedure print(p_doc dbms_xmldom.DOMDocument);
 
+  -- печать xml
+  procedure print(p_node dbms_xmldom.DOMNode,
+                  p_root dbms_xmldom.DOMNode default null);
+
   -- текст->bool
   function toBool(p_value varchar2) return boolean;
 
@@ -48,6 +47,13 @@
   -- текст->дата+время
   function toDateTime(p_value  varchar2,
                       p_format varchar2 default FMT_DATETIME) return date;
+
+  -- текст->число
+  function toNumber(p_value  varchar2,
+                    p_format varchar2 default null) return number;
+
+  -- текст->целое число
+  function toInteger(p_value varchar2) return integer;
 
   -- xml boolean
   function xmlBool(p_value boolean) return varchar2;
@@ -68,6 +74,9 @@
 
   -- число->текст
   function xmlNumber(p_value number) return varchar2;
+
+  -- целое число->текст
+  function xmlInteger(p_value integer) return varchar2;
 
   -- namespace map
   function getNSmap(p_xmlns  varchar2,
@@ -93,42 +102,54 @@
                    p_xpath varchar2,
                    p_nsmap varchar2 default null) return xmltype;
 
-  -- уничтожить ноду
-  procedure freeNode(node dbms_xmldom.DOMNode);
+  -- создать документ
+  function createDoc(p_clob clob) return dbms_xmldom.DOMDocument;
 
-  -- документ, владелец ноды
-  function ownerDoc(node dbms_xmldom.DOMNode) return dbms_xmldom.DOMDocument;
+  -- создать документ
+  function createDoc(p_doc xmltype) return dbms_xmldom.DOMDocument;
 
   -- создать xml-документ
-  function createDoc(rootNode out dbms_xmldom.DOMNode,
-                     rootName varchar2) return dbms_xmldom.DOMDocument;
+  function createDoc(p_root out dbms_xmldom.DOMNode,
+                     p_name varchar2) return dbms_xmldom.DOMDocument;
 
   -- создать ноду из документа
-  function createNode(doc xmltype) return dbms_xmldom.DOMNode;
+  function createNode(p_doc xmltype) return dbms_xmldom.DOMNode;
 
   -- создать дочернюю ноду
-  function createNode(parentNode dbms_xmldom.DOMNode,
-                      nodeName   varchar2) return dbms_xmldom.DOMNode;
+  function createNode(p_parent dbms_xmldom.DOMNode,
+                      p_name   varchar2) return dbms_xmldom.DOMNode;
 
   -- создать дочернюю ноду
-  function createNode(parentNode dbms_xmldom.DOMNode,
-                      nodeName   varchar2,
-                      nodeValue  varchar2) return dbms_xmldom.DOMNode;
+  function createNode(p_parent dbms_xmldom.DOMNode,
+                      p_name   varchar2,
+                      p_value  varchar2) return dbms_xmldom.DOMNode;
 
   -- создать дочернюю ноду
-  procedure createNode(parentNode dbms_xmldom.DOMNode,
-                       nodeName   varchar2,
-                       nodeValue  varchar2 default null,
-                       attrName   varchar2 default null,
-                       attrValue  varchar2 default null);
+  procedure createNode(p_parent     dbms_xmldom.DOMNode,
+                       p_name       varchar2,
+                       p_value      varchar2 default null,
+                       p_attr_name  varchar2 default null,
+                       p_attr_value varchar2 default null);
+
+  -- уничтожить ноду
+  procedure freeNode(p_node dbms_xmldom.DOMNode);
+
+  -- документ, владелец ноды
+  function ownerDoc(p_node dbms_xmldom.DOMNode) return dbms_xmldom.DOMDocument;
+
+  -- проверка на Null
+  function isNull(p_node dbms_xmldom.DOMNode) return boolean;
+
+  -- проверка на Null
+  function isNotNull(p_node dbms_xmldom.DOMNode) return boolean;
 
   -- найти/создать дочернюю ноду
-  function getChild(parentNode dbms_xmldom.DOMNode,
-                    childName  varchar2,
-                    childIndex integer default 0) return dbms_xmldom.DOMNode;
+  function getChild(p_parent dbms_xmldom.DOMNode,
+                    p_name   varchar2,
+                    p_index  integer default 0) return dbms_xmldom.DOMNode;
 
   -- текстовая под-нода
-  function getTextNode(node dbms_xmldom.DOMNode) return dbms_xmldom.DOMText;
+  function getTextNode(p_node dbms_xmldom.DOMNode) return dbms_xmldom.DOMText;
 
   -- текст  
   function getText(p_doc   xmltype,
@@ -136,22 +157,32 @@
                    p_nsmap varchar2 default null) return varchar2;
 
   -- текстовое содержимое ноды
-  function getText(node dbms_xmldom.DOMNode) return varchar2;
+  function getText(p_node dbms_xmldom.DOMNode) return varchar2;
 
   -- логическое значение
   function getBool(p_doc   xmltype,
                    p_xpath varchar2,
                    p_nsmap varchar2 default null) return boolean;
 
+  -- логическое значение
+  function getBool(p_node dbms_xmldom.DOMNode) return boolean;
+
   -- число с плавающей точкой
   function getNumber(p_doc   xmltype,
                      p_xpath varchar2,
                      p_nsmap varchar2 default null) return number;
 
+  -- число с плавающей точкой
+  function getNumber(p_node dbms_xmldom.DOMNode) return number;
+
   -- целое число
   function getInteger(p_doc   xmltype,
                       p_xpath varchar2,
                       p_nsmap varchar2 default null) return integer;
+
+  -- целое число
+  function getInteger(p_node dbms_xmldom.DOMNode) return integer;
+
   -- дата
   function getDate(p_doc    xmltype,
                    p_xpath  varchar2,
@@ -165,6 +196,9 @@
   -- прочитать атрибут
   function getAttrValue(p_node dbms_xmldom.DOMNode,
                         p_attr varchar2) return varchar2;
+
+  -- SQL-совместимое содержимое ноды 
+  function getSQLValue(p_node dbms_xmldom.DOMNode) return varchar2;
 
   -- установить значение ноды
   procedure setText(p_node  dbms_xmldom.DOMNode,
@@ -198,6 +232,14 @@
   procedure setAttrValue(p_node  dbms_xmldom.DOMNode,
                          p_attr  varchar2 default null,
                          p_value varchar2 default null);
+  -- корневая нода
+  function getRootNode(p_doc dbms_xmldom.DOMDocument) return dbms_xmldom.DOMNode;
+
+  -- уровень ноды от корня
+  function getNodeLevel(p_node dbms_xmldom.DOMNode) return integer;
+
+  -- название ноды
+  function getNodeName(p_node dbms_xmldom.DOMNode) return varchar2;
 
 end;
 /

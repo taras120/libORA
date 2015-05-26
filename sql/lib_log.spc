@@ -6,12 +6,12 @@
   -- Purpose : Logger Library
 
   -- levels
-  LEV_FATAL constant integer := 1; -- the most serious
-  LEV_ERROR constant integer := 2;
-  LEV_WARN  constant integer := 3;
-  LEV_INFO  constant integer := 4;
-  LEV_DEBUG constant integer := 5;
-  LEV_TRACE constant integer := 6; -- the least serious
+  L_FATAL constant integer := 1; -- the most serious
+  L_ERROR constant integer := 2;
+  L_WARN  constant integer := 3;
+  L_INFO  constant integer := 4;
+  L_DEBUG constant integer := 5;
+  L_TRACE constant integer := 6; -- the least serious
 
   -- formats
   FMT_NONE  constant integer := 0;
@@ -20,9 +20,17 @@
 
   function is_level(p_level integer) return boolean;
 
+  function is_debug return boolean;
+
+  function is_trace return boolean;
+
   function get_level return integer;
 
   procedure set_level(p_level integer);
+
+  function get_lname(p_level integer) return varchar2;
+
+  function this_lname return varchar2;
 
   function get_format return integer;
 

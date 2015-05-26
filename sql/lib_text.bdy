@@ -5,6 +5,13 @@
   -- (c) 1981-2014
   -- Taras Lyuklyanchuk
 
+  -- fill string with a character
+  function fill(p_len  integer,
+                p_char char default const.SPC) return varchar as
+  begin
+    return rpad(p_char, p_len, p_char);
+  end;
+
   function crop(p_text   varchar2,
                 p_length integer) return varchar2 is
   begin
@@ -16,7 +23,7 @@
   
     a t_array;
     i integer;
-    c char(1);
+    c varchar(2);
   begin
   
     if p_text is not null then
@@ -49,6 +56,7 @@
 
   function join(p_arr   t_array,
                 p_delim varchar2 default null) return varchar2 is
+  
     result varchar2(32767);
   begin
   
@@ -130,6 +138,23 @@
     return upper(p_text) = p_text;
   end;
 
+  function is_equal(p_text1       varchar2,
+                    p_text2       varchar2,
+                    b_case_ignore boolean default false) return boolean is
+  begin
+    if b_case_ignore then
+      return lower(p_text1) = lower(p_text2);
+    else
+      return p_text1 = p_text2;
+    end if;
+  end;
+
+  function is_similar(p_text1 varchar2,
+                      p_text2 varchar2) return boolean is
+  begin
+    return is_equal(p_text1 => p_text1, p_text2 => p_text2, b_case_ignore => true);
+  end;
+
   function uncamel(p_text varchar2) return varchar2 is
     a t_array;
     n integer := 0;
@@ -171,6 +196,120 @@
                      p_end   integer) return varchar2 is
   begin
     return substr(p_text, p_begin, p_end - p_begin + 1);
+  end;
+
+  function b64_encode(p_text in varchar2) return varchar2 is
+  begin
+    return utl_raw.cast_to_varchar2(utl_encode.base64_encode(utl_raw.cast_to_raw(p_text)));
+  end;
+
+  function b64_decode(p_text in varchar2) return varchar2 is
+  begin
+    return utl_raw.cast_to_varchar2(utl_encode.base64_decode(utl_raw.cast_to_raw(p_text)));
+  end;
+
+  -- string formatting
+  function format(p_format varchar2,
+                  p_arg1   varchar2 default null,
+                  p_arg2   varchar2 default null,
+                  p_arg3   varchar2 default null,
+                  p_arg4   varchar2 default null,
+                  p_arg5   varchar2 default null,
+                  p_arg6   varchar2 default null,
+                  p_arg7   varchar2 default null,
+                  p_arg8   varchar2 default null) return varchar2 is
+  
+    result varchar2(32767);
+  begin
+  
+    result := utl_lms.format_message(p_format,
+                                     p_arg1,
+                                     p_arg2,
+                                     p_arg3,
+                                     p_arg4,
+                                     p_arg5,
+                                     p_arg6,
+                                     p_arg7,
+                                     p_arg8);
+  
+    return replace(result, '\n', const.CRLF);
+  end;
+
+  -- print to dbms_out
+  procedure print(p_text varchar2) is
+  
+    lines t_array;
+    line  varchar2(32767);
+  begin
+  
+    lines := split(p_text, const.LF);
+  
+    for i in 1 .. lines.count loop
+    
+      line := replace(lines(i), const.CR, null);
+    
+      if i < lines.count then
+        dbms_output.put_line(line);
+      else
+        dbms_output.put(line);
+      end if;
+    end loop;
+  end;
+
+  -- print line to dbms_out
+  procedure println(p_text varchar2 default null) is
+  begin
+    print(p_text);
+    dbms_output.new_line;
+  end;
+
+  -- format+print to dbms_out
+  procedure printf(p_format varchar2,
+                   p_arg1   varchar2 default null,
+                   p_arg2   varchar2 default null,
+                   p_arg3   varchar2 default null,
+                   p_arg4   varchar2 default null,
+                   p_arg5   varchar2 default null,
+                   p_arg6   varchar2 default null,
+                   p_arg7   varchar2 default null,
+                   p_arg8   varchar2 default null) is
+  
+  begin
+  
+    print(format(p_format => p_format,
+                 p_arg1   => p_arg1,
+                 p_arg2   => p_arg2,
+                 p_arg3   => p_arg3,
+                 p_arg4   => p_arg4,
+                 p_arg5   => p_arg5,
+                 p_arg6   => p_arg6,
+                 p_arg7   => p_arg7,
+                 p_arg8   => p_arg8));
+  end;
+
+  -- format+print line to dbms_out
+  procedure printlnf(p_format varchar2,
+                     p_arg1   varchar2 default null,
+                     p_arg2   varchar2 default null,
+                     p_arg3   varchar2 default null,
+                     p_arg4   varchar2 default null,
+                     p_arg5   varchar2 default null,
+                     p_arg6   varchar2 default null,
+                     p_arg7   varchar2 default null,
+                     p_arg8   varchar2 default null) is
+  begin
+  
+    printf(p_format => p_format,
+           p_arg1   => p_arg1,
+           p_arg2   => p_arg2,
+           p_arg3   => p_arg3,
+           p_arg4   => p_arg4,
+           p_arg5   => p_arg5,
+           p_arg6   => p_arg6,
+           p_arg7   => p_arg7,
+           p_arg8   => p_arg8);
+  
+    println();
   end;
 
 end;

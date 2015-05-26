@@ -17,14 +17,14 @@
   -- list of hashmaps
   type map_list is table of hash_map index by binary_integer;
 
-  -- <key,value> maps
-  type mapVV is table of varchar2(4000) index by varchar2(4000);
-  type mapVI is table of integer index by varchar2(4000);
-  type mapVD is table of date index by varchar2(4000);
-  type mapIV is table of varchar2(4000) index by binary_integer;
-  type mapII is table of integer index by binary_integer;
-  type mapID is table of date index by binary_integer;
-
+  -- <key,value> hash maps
+  type hmap_vv is table of varchar2(4000) index by varchar2(4000);
+  type hmap_vi is table of integer index by varchar2(4000);
+  type hmap_vd is table of date index by varchar2(4000);
+  type hmap_iv is table of varchar2(4000) index by binary_integer;
+  type hmap_ii is table of integer index by binary_integer;
+  type hmap_id is table of date index by binary_integer;
+  
 end;
 /
 

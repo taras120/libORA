@@ -37,30 +37,33 @@
   type t_cursor is ref cursor;
 
   type t_column is record(
-    name     varchar2(1000),
-    typeId   integer,
-    typeName varchar2(32),
-    maxlen   integer,
-    scale    integer,
-    isNull   boolean,
-    position integer);
+    name      varchar2(1000),
+    type#     integer,
+    ora_type  varchar2(50),
+    java_type varchar2(50),
+    length    integer,
+    scale     integer,
+    is_key    boolean,
+    is_null   boolean,
+    position  integer);
 
   type t_describe is table of t_column;
 
   type t_value is record(
-    text     varchar2(32767),
-    typeId   integer,
-    typeName varchar2(32),
-    lob      clob,
-    isLob    boolean := false);
+    text      varchar2(32767),
+    type#     integer,
+    ora_type  varchar2(50),
+    java_type varchar2(50),
+    lob       clob,
+    is_lob    boolean := false);
+
+  function get_type#(p_name varchar2) return integer;
+
+  function get_type_name(p_type# integer) return varchar2;
 
   function get_cursor(p_cursor# integer) return t_cursor;
 
   function get_cursor#(p_cursor t_cursor) return integer;
-
-  function get_type_id(p_name integer) return varchar2;
-
-  function get_type_name(p_type integer) return varchar2;
 
   function get_string(p_cursor# integer,
                       p_column  t_column) return varchar2;
@@ -121,6 +124,20 @@
   function parse_to_map_list(p_cursor t_cursor,
                              p_name   varchar2,
                              p_rows#  integer default null) return xmltype;
+
+  -- вставить записи в таблицу 
+  function xml_insert(p_doc   xmltype,
+                      p_table varchar2) return integer;
+
+  -- обновить записи в таблице
+  function xml_update(p_doc   xmltype,
+                      p_table varchar2,
+                      p_key   varchar2 default null) return integer;
+
+  -- удалить записи из таблицы
+  function xml_delete(p_doc   xmltype,
+                      p_table varchar2,
+                      p_key   varchar2 default null) return integer;
 
 end;
 /

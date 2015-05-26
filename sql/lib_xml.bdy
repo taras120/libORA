@@ -6,6 +6,8 @@
   -- Taras Lyuklyanchuk
 
   -- константы
+  SPC         constant char(1) := chr(32);
+  AMP         constant char(1) := chr(38);
   CDATA_OPEN  constant varchar2(16) := '<![CDATA[';
   CDATA_CLOSE constant varchar2(16) := ']]>';
   NLS_NUMERIC constant char(2) := '.,';
@@ -23,15 +25,9 @@
   end;
 
   -- парсер
-  function parse(p_xml clob) return xmltype is
+  function parse(p_clob clob) return xmltype is
   begin
-    return xmltype(p_xml);
-  end;
-
-  -- парсер
-  function parse(p_xml clob) return dbms_xmldom.DOMDocument is
-  begin
-    return dbms_xmldom.newDOMDocument(xmltype(p_xml));
+    return xmltype(p_clob);
   end;
 
   -- парсер
@@ -55,22 +51,64 @@
   -- печать xml
   procedure print(p_doc xmltype) is
   begin
-    printf(serialize(p_doc));
+    lib_lob.print(serialize(p_doc));
   end;
 
   -- печать xml
   procedure print(p_doc dbms_xmldom.DOMDocument) is
   begin
-    printf(serialize(p_doc));
+    lib_lob.print(serialize(p_doc));
+  end;
+
+  -- печать xml
+  procedure print(p_node dbms_xmldom.DOMNode,
+                  p_root dbms_xmldom.DOMNode default null) is
+  
+    childList dbms_xmldom.DOMNodeList;
+    childNode dbms_xmldom.DOMNode;
+    nodeLevel integer;
+  begin
+  
+    if isNotNull(p_root) then
+      nodeLevel := getNodeLevel(p_node) - getNodeLevel(p_root);
+    else
+      nodeLevel := 0;
+    end if;
+  
+    if dbms_xmldom.getNodeType(p_node) in (dbms_xmldom.TEXT_NODE, dbms_xmldom.CDATA_SECTION_NODE) then
+    
+      lib_text.print(dbms_xmldom.getNodeValue(p_node));
+    
+    else
+    
+      if nodeLevel != 0 then
+        lib_text.println();
+      end if;
+    
+      lib_text.printf('%s%s: ', lib_text.fill(nodeLevel * 2), dbms_xmldom.getNodeName(p_node));
+    
+      childList := dbms_xmldom.getChildNodes(p_node);
+    
+      -- recursive traverse
+      for n in 0 .. dbms_xmldom.getLength(childList) - 1 loop
+      
+        childNode := dbms_xmldom.item(childList, n);
+        print(childNode, p_node);
+      end loop;
+    end if;
+  
+    if nodeLevel = 0 then
+      lib_text.println();
+    end if;
   end;
 
   -- текст->bool
   function toBool(p_value varchar2) return boolean is
   begin
   
-    if lower(p_value) = lower(XML_TRUE) then
+    if lower(p_value) in (lower(XML_TRUE), to_char(const.I_TRUE)) then
       return true;
-    elsif lower(p_value) = lower(XML_FALSE) then
+    elsif lower(p_value) in (lower(XML_FALSE), to_char(const.I_FALSE)) then
       return false;
     else
       return null;
@@ -97,9 +135,19 @@
 
   -- текст->число
   function toNumber(p_value  varchar2,
-                    p_format varchar2 default NLS_NUMERIC) return number is
+                    p_format varchar2 default null) return number is
   begin
-    return to_number(p_value, p_format);
+    if p_format is not null then
+      return to_number(p_value, p_format);
+    else
+      return to_number(p_value);
+    end if;
+  end;
+
+  -- текст->целое число
+  function toInteger(p_value varchar2) return integer is
+  begin
+    return toNumber(p_value);
   end;
 
   -- xml Boolean
@@ -151,7 +199,7 @@
     result varchar2(1000);
   begin
   
-    result := to_char(p_value, '');
+    result := to_char(p_value);
   
     if result like '._%' then
       result := '0' || result;
@@ -160,6 +208,12 @@
     end if;
   
     return result;
+  end;
+
+  -- целое число->текст
+  function xmlInteger(p_value integer) return varchar2 is
+  begin
+    return xmlNumber(p_value);
   end;
 
   -- namespace map
@@ -275,75 +329,75 @@
     return null;
   end;
 
-  -- уничтожить ноду
-  procedure freeNode(node dbms_xmldom.DOMNode) is
+  -- создать документ
+  function createDoc(p_clob clob) return dbms_xmldom.DOMDocument is
   begin
-    dbms_xmldom.freeNode(node);
+    return dbms_xmldom.newDOMDocument(xmltype(p_clob));
   end;
 
-  -- документ, владелец ноды
-  function ownerDoc(node dbms_xmldom.DOMNode) return dbms_xmldom.DOMDocument is
+  -- создать документ
+  function createDoc(p_doc xmltype) return dbms_xmldom.DOMDocument is
   begin
-    return dbms_xmldom.getOwnerDocument(node);
+    return dbms_xmldom.newDOMDocument(p_doc);
   end;
 
-  -- создать xml-документ
-  function createDoc(rootNode out dbms_xmldom.DOMNode,
-                     rootName varchar2) return dbms_xmldom.DOMDocument is
+  -- создать документ
+  function createDoc(p_root out dbms_xmldom.DOMNode,
+                     p_name varchar2) return dbms_xmldom.DOMDocument is
   
     doc  dbms_xmldom.DOMDocument;
     root dbms_xmldom.DOMElement;
   begin
   
-    doc      := dbms_xmldom.newDOMDocument;
-    root     := dbms_xmldom.createElement(doc, rootName);
-    rootNode := dbms_xmldom.appendChild(dbms_xmldom.makeNode(doc), dbms_xmldom.makeNode(root));
+    doc    := dbms_xmldom.newDOMDocument;
+    root   := dbms_xmldom.createElement(doc, p_name);
+    p_root := dbms_xmldom.appendChild(dbms_xmldom.makeNode(doc), dbms_xmldom.makeNode(root));
   
     return doc;
   end;
 
   -- создать ноду из документа
-  function createNode(doc xmltype) return dbms_xmldom.DOMNode is
+  function createNode(p_doc xmltype) return dbms_xmldom.DOMNode is
   begin
-    return dbms_xmldom.makeNode(dbms_xmldom.getDocumentElement(dbms_xmldom.newDOMDocument(doc)));
+    return dbms_xmldom.makeNode(dbms_xmldom.getDocumentElement(dbms_xmldom.newDOMDocument(p_doc)));
   end;
 
   -- создать дочернюю ноду
-  function createNode(parentNode dbms_xmldom.DOMNode,
-                      nodeName   varchar2) return dbms_xmldom.DOMNode is
+  function createNode(p_parent dbms_xmldom.DOMNode,
+                      p_name   varchar2) return dbms_xmldom.DOMNode is
   
     childNode dbms_xmldom.DOMElement;
   begin
   
-    if nodeName is null then
+    if p_name is null then
       throw('Node name is NULL while createNode(1)');
     end if;
   
-    childNode := dbms_xmldom.createElement(dbms_xmldom.getOwnerDocument(parentNode), nodeName);
+    childNode := dbms_xmldom.createElement(dbms_xmldom.getOwnerDocument(p_parent), p_name);
   
-    return dbms_xmldom.appendChild(parentNode, dbms_xmldom.makeNode(childNode));
+    return dbms_xmldom.appendChild(p_parent, dbms_xmldom.makeNode(childNode));
   end;
 
   -- создать дочернюю ноду
-  function createNode(parentNode dbms_xmldom.DOMNode,
-                      nodeName   varchar2,
-                      nodeValue  varchar2) return dbms_xmldom.DOMNode is
+  function createNode(p_parent dbms_xmldom.DOMNode,
+                      p_name   varchar2,
+                      p_value  varchar2) return dbms_xmldom.DOMNode is
   
     element dbms_xmldom.DOMElement;
     node    dbms_xmldom.DOMNode;
     text    dbms_xmldom.DOMText;
   begin
   
-    if nodeName is not null then
+    if p_name is not null then
     
-      element := dbms_xmldom.createElement(dbms_xmldom.getOwnerDocument(parentNode), nodeName);
+      element := dbms_xmldom.createElement(dbms_xmldom.getOwnerDocument(p_parent), p_name);
     
       node := dbms_xmldom.makeNode(element);
-      node := dbms_xmldom.appendChild(parentNode, node);
+      node := dbms_xmldom.appendChild(p_parent, node);
     
-      if nodeValue is not null then
+      if p_value is not null then
       
-        text := dbms_xmldom.createTextNode(dbms_xmldom.getOwnerDocument(parentNode), nodeValue);
+        text := dbms_xmldom.createTextNode(dbms_xmldom.getOwnerDocument(p_parent), p_value);
         freeNode(dbms_xmldom.appendChild(node, dbms_xmldom.makeNode(text)));
       end if;
     
@@ -355,59 +409,83 @@
   end;
 
   -- создать дочернюю ноду
-  procedure createNode(parentNode dbms_xmldom.DOMNode,
-                       nodeName   varchar2,
-                       nodeValue  varchar2 default null,
-                       attrName   varchar2 default null,
-                       attrValue  varchar2 default null) is
+  procedure createNode(p_parent     dbms_xmldom.DOMNode,
+                       p_name       varchar2,
+                       p_value      varchar2 default null,
+                       p_attr_name  varchar2 default null,
+                       p_attr_value varchar2 default null) is
   
     element dbms_xmldom.DOMElement;
     node    dbms_xmldom.DOMNode;
     text    dbms_xmldom.DOMText;
   begin
   
-    if nodeName is not null and nvl(nodeValue, attrValue) is not null then
+    if p_name is not null and nvl(p_value, p_attr_value) is not null then
     
-      element := dbms_xmldom.createElement(dbms_xmldom.getOwnerDocument(parentNode), nodeName);
+      element := dbms_xmldom.createElement(dbms_xmldom.getOwnerDocument(p_parent), p_name);
     
       node := dbms_xmldom.makeNode(element);
-      node := dbms_xmldom.appendChild(parentNode, node);
+      node := dbms_xmldom.appendChild(p_parent, node);
     
-      if nodeValue is not null then
+      if p_value is not null then
       
-        text := dbms_xmldom.createTextNode(dbms_xmldom.getOwnerDocument(parentNode), nodeValue);
+        text := dbms_xmldom.createTextNode(dbms_xmldom.getOwnerDocument(p_parent), p_value);
         node := dbms_xmldom.appendChild(node, dbms_xmldom.makeNode(text));
       end if;
     
-      if attrValue is not null then
-        dbms_xmldom.setAttribute(element, attrName, attrValue);
+      if p_attr_value is not null then
+        dbms_xmldom.setAttribute(element, p_attr_name, p_attr_value);
       end if;
     
       dbms_xmldom.freeNode(node);
     end if;
   end;
 
+  -- уничтожить ноду
+  procedure freeNode(p_node dbms_xmldom.DOMNode) is
+  begin
+    dbms_xmldom.freeNode(p_node);
+  end;
+
+  -- документ, владелец ноды
+  function ownerDoc(p_node dbms_xmldom.DOMNode) return dbms_xmldom.DOMDocument is
+  begin
+    return dbms_xmldom.getOwnerDocument(p_node);
+  end;
+
+  -- проверка на Null
+  function isNull(p_node dbms_xmldom.DOMNode) return boolean is
+  begin
+    return dbms_xmldom.isNull(p_node);
+  end;
+
+  -- проверка на Null
+  function isNotNull(p_node dbms_xmldom.DOMNode) return boolean is
+  begin
+    return not isNull(p_node);
+  end;
+
   -- найти/создать дочернюю ноду
-  function getChild(parentNode dbms_xmldom.DOMNode,
-                    childName  varchar2,
-                    childIndex integer default 0) return dbms_xmldom.DOMNode is
+  function getChild(p_parent dbms_xmldom.DOMNode,
+                    p_name   varchar2,
+                    p_index  integer default 0) return dbms_xmldom.DOMNode is
   
     parentElement dbms_xmldom.DOMElement;
     childList     dbms_xmldom.DOMNodeList;
     childNode     dbms_xmldom.DOMNode;
   begin
   
-    parentElement := dbms_xmldom.makeElement(parentNode);
+    parentElement := dbms_xmldom.makeElement(p_parent);
   
-    childList := dbms_xmldom.getChildrenByTagName(parentElement, childName);
+    childList := dbms_xmldom.getChildrenByTagName(parentElement, p_name);
   
-    if dbms_xmldom.getLength(childList) > childIndex then
+    if dbms_xmldom.getLength(childList) > p_index then
     
-      childNode := dbms_xmldom.Item(childList, childIndex);
+      childNode := dbms_xmldom.Item(childList, p_index);
     
-    elsif dbms_xmldom.getLength(childList) = childIndex then
+    elsif dbms_xmldom.getLength(childList) = p_index then
     
-      childNode := createNode(parentNode, childName);
+      childNode := createNode(p_parent, p_name);
     
     else
       throw('Node index out of range');
@@ -417,17 +495,17 @@
   end;
 
   -- текстовая под-нода
-  function getTextNode(node dbms_xmldom.DOMNode) return dbms_xmldom.DOMText is
+  function getTextNode(p_node dbms_xmldom.DOMNode) return dbms_xmldom.DOMText is
   
     children dbms_xmldom.DOMNodeList;
     child    dbms_xmldom.DOMNode;
   begin
   
-    children := dbms_xmldom.getChildNodes(node);
+    children := dbms_xmldom.getChildNodes(p_node);
   
     if dbms_xmldom.getLength(children) != 0 then
     
-      child := dbms_xmldom.getFirstChild(node);
+      child := dbms_xmldom.getFirstChild(p_node);
     
       if dbms_xmldom.getNodeType(child) in (dbms_xmldom.TEXT_NODE, dbms_xmldom.CDATA_SECTION_NODE) then
         return dbms_xmldom.makeText(child);
@@ -464,14 +542,14 @@
   end;
 
   -- текстовое содержимое ноды
-  function getText(node dbms_xmldom.DOMNode) return varchar2 is
+  function getText(p_node dbms_xmldom.DOMNode) return varchar2 is
   
     child    dbms_xmldom.DOMNode;
     children dbms_xmldom.DOMNodeList;
     result   varchar2(32767);
   begin
   
-    children := dbms_xmldom.getChildNodes(node);
+    children := dbms_xmldom.getChildNodes(p_node);
   
     for i in 0 .. dbms_xmldom.getLength(children) - 1 loop
     
@@ -494,13 +572,10 @@
     return toBool(getText(p_doc, p_xpath, p_nsmap));
   end;
 
-  -- целое число
-  function getInteger(p_doc   xmltype,
-                      p_xpath varchar2,
-                      p_nsmap varchar2 default null) return integer is
+  -- логическое значение
+  function getBool(p_node dbms_xmldom.DOMNode) return boolean is
   begin
-  
-    return trunc(getNumber(p_doc, p_xpath, p_nsmap));
+    return toBool(getText(p_node));
   end;
 
   -- число с плавающей точкой
@@ -512,6 +587,27 @@
     return to_number(getText(p_doc, p_xpath, p_nsmap), NLS_NUMERIC);
   end;
 
+  -- число с плавающей точкой
+  function getNumber(p_node dbms_xmldom.DOMNode) return number is
+  begin
+    return to_number(getText(p_node), NLS_NUMERIC);
+  end;
+
+  -- целое число
+  function getInteger(p_doc   xmltype,
+                      p_xpath varchar2,
+                      p_nsmap varchar2 default null) return integer is
+  begin
+  
+    return trunc(getNumber(p_doc, p_xpath, p_nsmap));
+  end;
+
+  -- целое число
+  function getInteger(p_node dbms_xmldom.DOMNode) return integer is
+  begin
+    return trunc(getNumber(p_node));
+  end;
+
   -- дата
   function getDate(p_doc    xmltype,
                    p_xpath  varchar2,
@@ -521,6 +617,13 @@
     return toDate(p_value => getText(p_doc, p_xpath), p_format => p_format);
   end;
 
+  -- дата
+  function getDate(p_node   dbms_xmldom.DOMNode,
+                   p_format varchar2 default FMT_DATE) return date is
+  begin
+    return toDate(p_value => getText(p_node), p_format => p_format);
+  end;
+
   -- дата+время
   function getDateTime(p_doc    xmltype,
                        p_xpath  varchar2,
@@ -528,6 +631,14 @@
   begin
   
     return toDateTime(p_value => getText(p_doc, p_xpath), p_format => p_format);
+  end;
+
+  -- дата+время
+  function getDateTime(p_node   dbms_xmldom.DOMNode,
+                       p_format varchar2 default FMT_DATETIME) return date is
+  begin
+    return toDateTime(p_value => getText(p_node), p_format => p_format);
+  
   end;
 
   -- прочитать атрибут
@@ -544,6 +655,32 @@
     else
       return null;
     end if;
+  end;
+
+  -- SQL-совместимое содержимое ноды 
+  function getSQLValue(p_node dbms_xmldom.DOMNode) return varchar2 is
+  
+    colName varchar2(1000);
+    colText varchar2(32767);
+  begin
+  
+    colName := getNodeName(p_node);
+    colText := getText(p_node);
+  
+    if colText is not null then
+    
+      if lower(colName) like 'is%' and toBool(colText) is not null then
+        return to_int(toBool(colText));
+      elsif lower(colName) like '%date%' and colText like '____-__-__T' then
+        return toDate(colText);
+      elsif lower(colName) like '%date%' and colText like '____-__-__T%' then
+        return toDateTime(colText);
+      else
+        return colText;
+      end if;
+    end if;
+  
+    return colText;
   end;
 
   -- установить значение ноды
@@ -629,6 +766,36 @@
       element := dbms_xmldom.makeElement(p_node);
       dbms_xmldom.setAttribute(element, p_attr, p_value);
     end if;
+  end;
+
+  -- корневая нода
+  function getRootNode(p_doc dbms_xmldom.DOMDocument) return dbms_xmldom.DOMNode is
+  begin
+    return dbms_xmldom.makeNode(dbms_xmldom.getDocumentElement(p_doc));
+  end;
+
+  -- уровень ноды от корня
+  function getNodeLevel(p_node dbms_xmldom.DOMNode) return integer is
+  
+    i          integer := 0;
+    parentNode dbms_xmldom.DOMNode := p_node;
+  begin
+  
+    loop
+      parentNode := dbms_xmldom.getParentNode(parentNode);
+      exit when dbms_xmldom.isNull(parentNode);
+    
+      inc(i);
+    end loop;
+  
+    return i;
+  end;
+
+  -- название ноды
+  function getNodeName(p_node dbms_xmldom.DOMNode) return varchar2 is
+  begin
+  
+    return dbms_xmldom.getNodeName(p_node);
   end;
 
 begin

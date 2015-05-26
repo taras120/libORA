@@ -11,18 +11,9 @@
   -- String formatting
   -- LibORA PL/SQL Library
   -- (c) 1981-2014 Taras Lyuklyanchuk 
-
 begin
 
-  return utl_lms.format_message(text,
-                                nvl(arg1, 'NULL'),
-                                nvl(arg2, 'NULL'),
-                                nvl(arg3, 'NULL'),
-                                nvl(arg4, 'NULL'),
-                                nvl(arg5, 'NULL'),
-                                nvl(arg6, 'NULL'),
-                                nvl(arg7, 'NULL'),
-                                nvl(arg8, 'NULL'));
+  return utl_lms.format_message(text, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 end;
 /
 

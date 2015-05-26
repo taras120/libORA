@@ -6,8 +6,8 @@
   -- Purpose : Mailer Library
   
   -- defaults
-  SENDER_NAME varchar2(100) := lib_util.session_os_user;
-  SENDER_MAIL varchar2(100) := sprintf('%s@%s', user, lib_util.this_server_host);
+  SENDER_NAME varchar2(100) := lib_util.remote_os_user;
+  SENDER_MAIL varchar2(100) := sprintf('%s@%s', user, lib_util.server_host_name);
 
   -- file attachment
   type t_attach is record(

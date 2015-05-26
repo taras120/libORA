@@ -3,7 +3,7 @@ begin
 
   /* a++ */
 
-  a := a + 1;
+  a := nvl(a, 0) + 1;
 end;
 /
 

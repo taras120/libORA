@@ -16,11 +16,13 @@
                               p_persistent integer default 0) return self as result as
   begin
   
+    -- defaults
     self.debug        := 0;
     self.http_ok      := utl_http.HTTP_OK;
     self.http_method  := 'POST';
     self.http_charset := 'UTF-8';
     self.xml_charset  := 'UTF8';
+    self.content_type := sprintf('text/xml; charset=%s', lower(self.http_charset));
     self.ws_ns        := p_ws_ns;
     self.ws_url       := p_ws_url;
     self.ws_method    := p_ws_method;
@@ -46,7 +48,7 @@
   begin
   
     if self.debug != 0 then
-      printf(p_text, p_prm1, p_prm2, p_prm3, p_prm4, p_prm5, p_prm6, p_prm7);
+      printlnf(p_text, p_prm1, p_prm2, p_prm3, p_prm4, p_prm5, p_prm6, p_prm7);
     end if;
   end;
 
@@ -108,10 +110,10 @@
   begin
   
     -- namespace
-    ns_xsi  := 'http://www.w3.org/2001/XMLSchema-instance';
-    ns_xsd  := 'http://www.w3.org/2001/XMLSchema';
+    ns_xsi := 'http://www.w3.org/2001/XMLSchema-instance';
+    ns_xsd := 'http://www.w3.org/2001/XMLSchema';
+    -- ns_soap := http://www.w3.org/2003/05/soap-envelop
     ns_soap := nvl(ns_soap, 'http://schemas.xmlsoap.org/soap/envelope/');
-    -- soap_ns := http://www.w3.org/2003/05/soap-envelop
     ns_wsse := 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
   
     -- document
@@ -316,7 +318,7 @@
     end if;
   
     -- заголовки
-    utl_http.set_header(req, 'Content-Type', 'text/xml');
+    utl_http.set_header(req, 'Content-Type', content_type);
     utl_http.set_header(req, 'Content-Length', req_length);
   
     -- запрос
@@ -403,7 +405,7 @@
                              warning      => warning);
     
       if debug * warning != 0 then
-        printf('Warning: [%s]', warning);
+        printlnf('Warning: [%s]', warning);
         lib_lob.print(resp_clob);
       end if;
     

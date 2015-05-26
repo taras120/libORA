@@ -13,13 +13,19 @@
 
   function this_sessionid return integer;
 
-  function this_server_host return varchar2;
+  function server_db_name return varchar2;
 
-  function session_os_user return varchar2;
+  function server_host_name return varchar2;
 
-  function session_terminal return varchar2;
+  function server_host_address return varchar2;
 
-  function session_client_ip return varchar2;
+  function remote_os_user return varchar2;
+
+  function remote_terminal return varchar2;
+
+  function remote_host_name return varchar2;
+
+  function remote_host_address return varchar2;
 
   procedure sleep(ms integer);
 
