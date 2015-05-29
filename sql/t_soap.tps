@@ -1,12 +1,13 @@
 ﻿create or replace type t_soap as object
 (
 
-/*
- * LibORA PL/SQL Library
- * Author  : Taras Lyuklyanchuk
- * Created : 26.05.2013 10:23:29
- * Purpose : HTTP SOAP Client
- */
+/**
+  * LibORA PL/SQL Library
+  * http://bitbucket.org/rtfm/libora  
+  * Author  : Taras Lyuklyanchuk
+  * Created : 26.05.2013 10:23:29
+  * Purpose : HTTP SOAP Client
+  */
 
   debug        integer,
   ns_xsi       varchar2(1000),

@@ -2,7 +2,7 @@
 begin
 
   /* No-result function call stub */
-  /* Needs to call function without get result */
+  /* Helps to call function without get result */
 
   null;
 end;

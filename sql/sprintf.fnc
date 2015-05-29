@@ -10,7 +10,9 @@
 
   -- String formatting
   -- LibORA PL/SQL Library
-  -- (c) 1981-2014 Taras Lyuklyanchuk 
+  -- http://bitbucket.org/rtfm/libora  
+  -- (c) 1981-2014 Taras Lyuklyanchuk
+   
 begin
 
   return utl_lms.format_message(text, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);

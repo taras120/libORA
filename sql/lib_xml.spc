@@ -1,9 +1,9 @@
 ﻿create or replace package lib_xml is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- XML DOM Library
-  -- (c) 1981-2014
-  -- Taras Lyuklyanchuk
+  -- (c) 1981-2014 Taras Lyuklyanchuk
 
   -- constants
   XML_TRUE     constant varchar2(16) := 'true';

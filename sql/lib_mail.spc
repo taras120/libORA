@@ -1,6 +1,7 @@
 ﻿create or replace package lib_mail is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
   -- Created : 13.05.2015 14:25:17
   -- Purpose : Mailer Library

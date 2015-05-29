@@ -1,9 +1,9 @@
 ﻿create or replace package lib_crypt is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- Cryptographic Functions
-  -- (c) 1981-2014
-  -- Taras Lyuklyanchuk  
+  -- (c) 1981-2014 Taras Lyuklyanchuk
 
   DEFAULT_PWD_LENGTH constant integer := 16;
 
@@ -34,7 +34,7 @@
   function des3dv(input char,
                   key   char) return raw;
 
-  --  password generator
+  -- password generator
   function gen_pwd(len integer default DEFAULT_PWD_LENGTH) return varchar2;
 
   -- хэш-функция пароля

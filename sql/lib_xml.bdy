@@ -1,9 +1,9 @@
 ﻿create or replace package body lib_xml is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- XML DOM Library
-  -- (c) 1981-2014
-  -- Taras Lyuklyanchuk
+  -- (c) 1981-2014 Taras Lyuklyanchuk
 
   -- константы
   SPC         constant char(1) := chr(32);

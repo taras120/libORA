@@ -1,11 +1,12 @@
 ﻿create or replace type body t_soap as
 
   /*
-  * LibORA PL/SQL Library
-  * Author  : Taras Lyuklyanchuk
-  * Created : 26.05.2013 10:23:29
-  * Purpose : HTTP SOAP Client
-  */
+   * LibORA PL/SQL Library
+   * http://bitbucket.org/rtfm/libora
+   * Author  : Taras Lyuklyanchuk
+   * Created : 26.05.2013 10:23:29
+   * Purpose : HTTP SOAP Client
+  **/
 
   constructor function t_soap(p_ws_url     varchar2,
                               p_ws_ns      varchar2,

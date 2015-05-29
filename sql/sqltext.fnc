@@ -5,7 +5,8 @@ begin
 
   -- Returns truncated error message text
   -- LibORA PL/SQL Library
-  -- (c) 1981-2014 Taras Lyuklyanchuk 
+  -- http://bitbucket.org/rtfm/libora  
+  -- (c) 1981-2014 Taras Lyuklyanchuk
 
   text := trim(substr(p_errm, 1, 1000));
 

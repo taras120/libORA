@@ -1,6 +1,7 @@
 ﻿create or replace package types is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
   -- Created : 26.01.2015 14:23:29
   -- Purpose : Common Usage PL/SQL Types

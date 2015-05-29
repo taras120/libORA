@@ -1,6 +1,7 @@
 ﻿create or replace package body lib_sql is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
   -- Created : 26.07.2013 11:37:59  
   -- Purpose : SQL Reflection Library
@@ -540,6 +541,7 @@
                     p_column  t_column) return clob is
   
     clob_value    clob;
+    string_value  varchar2(32767);
     xmltype_value xmltype;
   begin
   
@@ -549,6 +551,11 @@
     
       dbms_sql.column_value(c => p_cursor#, position => p_column.position, value => clob_value);
       return clob_value;
+    
+    elsif p_column.type# = ORA_VARCHAR2 then
+    
+      dbms_sql.column_value(c => p_cursor#, position => p_column.position, value => string_value);
+      return string_value;
     
     elsif p_column.type# = USER_XMLTYPE then
     
@@ -561,7 +568,7 @@
       end if;
     
     else
-      throw('[%s] Column type is not compatible', p_column.ora_type);
+      throw('[%s] Column type is not CLOB compatible', p_column.ora_type);
     end if;
   end;
 
@@ -604,7 +611,7 @@
     
     elsif p_column.type# = ORA_NUMBER then
     
-      value.text := xml.xmlNumber(get_number(p_cursor#, p_column));
+      value.text := lib_xml.xmlNumber(get_number(p_cursor#, p_column));
     
     elsif p_column.type# = USER_INTEGER then
     
@@ -612,11 +619,11 @@
     
     elsif p_column.type# = USER_BOOLEAN then
     
-      value.text := xml.xmlBool(get_boolean(p_cursor#, p_column));
+      value.text := lib_xml.xmlBool(get_boolean(p_cursor#, p_column));
     
     elsif p_column.type# = ORA_DATE then
     
-      value.text := xml.xmlDateTime(get_date(p_cursor#, p_column));
+      value.text := lib_xml.xmlDateTime(get_date(p_cursor#, p_column));
     
     elsif p_column.type# = ORA_CHAR then
     
@@ -670,15 +677,15 @@
     describe := describe_cursor(p_cursor#);
     define_columns(p_cursor#, describe);
   
-    doc := xml.createDoc(rootNode, nvl(p_name, JAVA_ROWSET_TAG));
+    doc := lib_xml.createDoc(rootNode, nvl(p_name, JAVA_ROWSET_TAG));
   
     n := 0;
     loop
       exit when dbms_sql.fetch_rows(p_cursor#) = 0;
     
       inc(n);
-      recordNode := xml.createNode(rootNode, JAVA_ROW_TAG);
-      xml.setAttrValue(recordNode, JAVA_ROW#_ATTR, n);
+      recordNode := lib_xml.createNode(rootNode, JAVA_ROW_TAG);
+      lib_xml.setAttrValue(recordNode, JAVA_ROW#_ATTR, n);
     
       for i in 1 .. describe.count loop
       
@@ -686,20 +693,20 @@
         value  := get_value(p_cursor#, column);
       
         -- node      
-        valueNode := xml.createNode(recordNode, lib_text.lower_camel(column.name));
+        valueNode := lib_xml.createNode(recordNode, lib_text.lower_camel(column.name));
       
         -- value
         if value.is_lob then
-          xml.setClob(valueNode, value.lob);
+          lib_xml.setClob(valueNode, value.lob);
         else
-          xml.setText(valueNode, value.text);
+          lib_xml.setText(valueNode, value.text);
         end if;
       
         -- attributes
-        xml.setAttrValue(valueNode, 'type', value.java_type);
+        lib_xml.setAttrValue(valueNode, 'type', value.java_type);
       
         if column.scale != 0 then
-          xml.setAttrValue(valueNode, 'scale', column.scale);
+          lib_xml.setAttrValue(valueNode, 'scale', column.scale);
         end if;
       
       end loop;
@@ -777,12 +784,12 @@
   
     data := parse_as_keyval(p_cursor);
   
-    doc := xml.createDoc(root, nvl(p_name, JAVA_ROWSET_TAG));
+    doc := lib_xml.createDoc(root, nvl(p_name, JAVA_ROWSET_TAG));
   
     key := data.first;
     while key is not null loop
     
-      xml.createNode(root, key, data(key));
+      lib_xml.createNode(root, key, data(key));
       key := data.next(key);
     end loop;
   
@@ -843,7 +850,7 @@
   
     rec_list := parse_to_map_list(p_cursor, p_rows#);
   
-    doc := xml.createDoc(rootNode, nvl(p_name, JAVA_ROWSET_TAG));
+    doc := lib_xml.createDoc(rootNode, nvl(p_name, JAVA_ROWSET_TAG));
   
     if p_rows# = 1 then
     
@@ -851,7 +858,7 @@
       col := rec.first;
       while col is not null loop
       
-        xml.createNode(rootNode, lib_text.lower_camel(col), rec(col));
+        lib_xml.createNode(rootNode, lib_text.lower_camel(col), rec(col));
         col := rec.next(col);
       end loop;
     
@@ -860,16 +867,16 @@
       for n in 1 .. rec_list.count loop
       
         rec     := rec_list(n);
-        recNode := xml.createNode(rootNode, JAVA_ROW_TAG);
+        recNode := lib_xml.createNode(rootNode, JAVA_ROW_TAG);
       
         col := rec.first;
         while col is not null loop
         
-          xml.createNode(recNode, lib_text.lower_camel(col), rec(col));
+          lib_xml.createNode(recNode, lib_text.lower_camel(col), rec(col));
           col := rec.next(col);
         end loop;
       
-        xml.setAttrValue(recNode, JAVA_ROW#_ATTR, n);
+        lib_xml.setAttrValue(recNode, JAVA_ROW#_ATTR, n);
       end loop;
     end if;
   

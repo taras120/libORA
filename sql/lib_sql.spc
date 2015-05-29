@@ -1,6 +1,7 @@
 ﻿create or replace package lib_sql is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
   -- Created : 26.07.2013 11:37:59  
   -- Purpose : SQL Reflection Library

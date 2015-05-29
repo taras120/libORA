@@ -4,7 +4,8 @@ begin
   
   -- IIF implementation
   -- LibORA PL/SQL Library
-  -- (c) 1981-2014 Taras Lyuklyanchuk 
+  -- http://bitbucket.org/rtfm/libora  
+  -- (c) 1981-2014 Taras Lyuklyanchuk
 
   if cond then
     return arg1;

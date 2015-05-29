@@ -1,6 +1,7 @@
 ﻿create or replace package body lib_math is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
   -- Created : 26.04.2014 11:37:59  
   -- Purpose : Mathematical Functions

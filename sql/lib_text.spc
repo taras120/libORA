@@ -1,9 +1,9 @@
 ﻿create or replace package lib_text is
 
-  -- LibORA PL/SQL Library
   -- Text Functions
-  -- (c) 1981-2014
-  -- Taras Lyuklyanchuk
+  -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
+  -- (c) 1981-2014 Taras Lyuklyanchuk
 
   type t_array is table of varchar2(32767) index by binary_integer;
 
@@ -91,6 +91,13 @@
                      p_arg6   varchar2 default null,
                      p_arg7   varchar2 default null,
                      p_arg8   varchar2 default null);
+
+  function repeat(p_text  varchar2,
+                  p_times integer) return varchar2;
+
+  function repeat(p_text  varchar2,
+                  p_delim varchar2,
+                  p_times integer) return varchar2;
 
 end;
 /

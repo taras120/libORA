@@ -5,6 +5,7 @@ begin
 
   -- Swap arguments values
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora  
   -- (c) 1981-2014 Taras Lyuklyanchuk
 
   tmp := a;

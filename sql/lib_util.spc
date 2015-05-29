@@ -1,6 +1,7 @@
 ﻿create or replace package lib_util is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
   -- Created : 26.11.2014 11:37:59  
   -- Purpose : PL/SQL Utillity Functions

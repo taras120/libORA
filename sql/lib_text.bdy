@@ -1,9 +1,9 @@
 ﻿create or replace package body lib_text is
 
-  -- LibORA PL/SQL Library
   -- Text Functions
-  -- (c) 1981-2014
-  -- Taras Lyuklyanchuk
+  -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
+  -- (c) 1981-2014 Taras Lyuklyanchuk
 
   -- fill string with a character
   function fill(p_len  integer,
@@ -310,6 +310,38 @@
            p_arg8   => p_arg8);
   
     println();
+  end;
+
+  function repeat(p_text  varchar2,
+                  p_times integer) return varchar2 is
+  
+    result varchar2(4000);
+  begin
+  
+    for n in 1 .. p_times loop
+      result := result || p_text;
+    end loop;
+  
+    return result;
+  end;
+
+  function repeat(p_text  varchar2,
+                  p_delim varchar2,
+                  p_times integer) return varchar2 is
+  
+    result varchar2(4000);
+  begin
+  
+    for n in 1 .. p_times loop
+    
+      if result is null then
+        result := result || p_text;
+      else
+        result := result || p_delim || p_text;
+      end if;
+    end loop;
+  
+    return result;
   end;
 
 end;

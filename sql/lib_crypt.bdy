@@ -1,9 +1,9 @@
 ﻿create or replace package body lib_crypt is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- Cryptographic Functions
-  -- (c) 1981-2014
-  -- Taras Lyuklyanchuk  
+  -- (c) 1981-2014 Taras Lyuklyanchuk
 
   TABLE1 constant varchar2(32) := '0123456789';
   TABLE2 constant varchar2(32) := 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -47,8 +47,8 @@
     
       piece := utl_raw.substr(input, (i - 1) * 8 + 1, 8);
     
-      result := utl_raw.concat(result,
-                               dbms_obfuscation_toolkit.DESEncrypt(input => piece, key => key));
+      result := utl_raw.concat(r1 => result,
+                               r2 => dbms_obfuscation_toolkit.DESEncrypt(input => piece, key => key));
     end loop;
   
     return result;
@@ -70,8 +70,8 @@
     
       piece := utl_raw.substr(input, (i - 1) * 8 + 1, 8);
     
-      result := utl_raw.concat(result,
-                               dbms_obfuscation_toolkit.DESDecrypt(input => piece, key => key));
+      result := utl_raw.concat(r1 => result,
+                               r2 => dbms_obfuscation_toolkit.DESDecrypt(input => piece, key => key));
     end loop;
   
     return result;
@@ -136,7 +136,7 @@
     return rpad(input, len, chr(32));
   end;
 
-  --  password generator
+  -- password generator
   function gen_pwd(len integer default DEFAULT_PWD_LENGTH) return varchar2 is
   
     i1     integer;

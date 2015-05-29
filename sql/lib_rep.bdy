@@ -1,6 +1,7 @@
 ﻿create or replace package body lib_rep is
 
   -- LibORA PL/SQL Library
+  -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
   -- Created : 15.05.2015 0:11:57
   -- Purpose : Simple Marker Report Engine
