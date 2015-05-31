@@ -63,40 +63,40 @@
   -- печать xml
   procedure print(p_node dbms_xmldom.DOMNode,
                   p_root dbms_xmldom.DOMNode default null) is
-  
+
     childList dbms_xmldom.DOMNodeList;
     childNode dbms_xmldom.DOMNode;
     nodeLevel integer;
   begin
-  
+
     if isNotNull(p_root) then
       nodeLevel := getNodeLevel(p_node) - getNodeLevel(p_root);
     else
       nodeLevel := 0;
     end if;
-  
+
     if dbms_xmldom.getNodeType(p_node) in (dbms_xmldom.TEXT_NODE, dbms_xmldom.CDATA_SECTION_NODE) then
-    
+
       lib_text.print(dbms_xmldom.getNodeValue(p_node));
-    
+
     else
-    
+
       if nodeLevel != 0 then
         lib_text.println();
       end if;
-    
+
       lib_text.printf('%s%s: ', lib_text.fill(nodeLevel * 2), dbms_xmldom.getNodeName(p_node));
-    
+
       childList := dbms_xmldom.getChildNodes(p_node);
-    
+
       -- recursive traverse
       for n in 0 .. dbms_xmldom.getLength(childList) - 1 loop
-      
+
         childNode := dbms_xmldom.item(childList, n);
         print(childNode, p_node);
       end loop;
     end if;
-  
+
     if nodeLevel = 0 then
       lib_text.println();
     end if;
@@ -105,7 +105,7 @@
   -- текст->bool
   function toBool(p_value varchar2) return boolean is
   begin
-  
+
     if lower(p_value) in (lower(XML_TRUE), to_char(const.I_TRUE)) then
       return true;
     elsif lower(p_value) in (lower(XML_FALSE), to_char(const.I_FALSE)) then
@@ -127,9 +127,9 @@
                       p_format varchar2 default FMT_DATETIME) return date is
     text varchar2(32);
   begin
-  
+
     text := crop(p_value, length(p_format));
-  
+
     return to_date(replace(text, 'T', SPC), p_format);
   end;
 
@@ -153,7 +153,7 @@
   -- xml Boolean
   function xmlBool(p_value boolean) return varchar2 is
   begin
-  
+
     if p_value then
       return XML_TRUE;
     elsif not p_value then
@@ -186,7 +186,7 @@
   -- время->текст
   function xmlDateTime(p_value date) return varchar2 is
   begin
-  
+
     if p_value is not null then
       return sprintf('%sT%s', xmlDate(p_value), xmlTime(p_value));
     else
@@ -198,15 +198,15 @@
   function xmlNumber(p_value number) return varchar2 is
     result varchar2(1000);
   begin
-  
+
     result := to_char(p_value);
-  
+
     if result like '._%' then
       result := '0' || result;
     elsif result like '-._%' then
       result := '-0' || substr(result, 2);
     end if;
-  
+
     return result;
   end;
 
@@ -220,7 +220,7 @@
   function getNSmap(p_xmlns  varchar2,
                     p_prefix varchar2 default null) return varchar2 is
   begin
-  
+
     if instr(p_xmlns, '=') != 0 then
       return p_xmlns;
     elsif p_xmlns is not null then
@@ -238,19 +238,19 @@
   procedure setSessionParam(p_param varchar2,
                             p_value varchar2) is
   begin
-  
+
     execute immediate sprintf('alter session set %s = "%s"', p_param, p_value);
   end;
 
   -- NLS Numeric Characters
   procedure setNlsNumeric(p_value varchar2) is
   begin
-  
+
     -- NLS
     for q in (select t.* from v$nls_parameters t where t.parameter = 'NLS_NUMERIC_CHARACTERS') loop
-    
+
       if q.value != p_value then
-      
+
         setSessionParam(q.parameter, p_value);
       end if;
     end loop;
@@ -260,13 +260,13 @@
   function entity(p_text varchar2) return varchar2 is
     text varchar2(4000) := trim(p_text);
   begin
-  
+
     text := replace(text, AMP, AMP || 'amp;');
     text := replace(text, '<', AMP || 'lt;');
     text := replace(text, '>', AMP || 'gt;');
     text := replace(text, '"', AMP || 'quot;');
     text := replace(text, '''', AMP || 'apos;');
-  
+
     return text;
   end;
 
@@ -274,30 +274,30 @@
   function unentity(p_text varchar2) return varchar2 is
     text varchar2(4000) := p_text;
   begin
-  
+
     if text is not null then
-    
+
       text := replace(text, AMP || 'amp;', AMP);
       text := replace(text, AMP || 'lt;', '<');
       text := replace(text, AMP || 'gt;', '>');
       text := replace(text, AMP || 'quot;', '"');
       text := replace(text, AMP || 'apos;', '''');
-    
+
       -- фиксим косяки компаса
       for i in 2 .. length(text) - 1 loop
-      
+
         if substr(text, i, 1) = '"' then
           if substr(text, i + 1, 1) not in (SPC, '>') and substr(text, i - 1, 1) not in ('=') then
             text := substr(text, 1, i - 1) || substr(text, i + 1);
           end if;
         end if;
       end loop;
-    
+
     end if;
-  
+
     -- CDATA unwrap
     text := replace(replace(text, CDATA_OPEN), CDATA_CLOSE);
-  
+
     return text;
   end;
 
@@ -316,16 +316,16 @@
   function extract(p_doc   xmltype,
                    p_xpath varchar2,
                    p_nsmap varchar2 default null) return xmltype is
-  
+
     nsmap varchar2(1000) := getNSmap(p_nsmap);
   begin
-  
+
     -- extract
     if p_doc.existsNode(p_xpath, nsmap) != 0 then
-    
+
       return p_doc.extract(p_xpath, nsmap);
     end if;
-  
+
     return null;
   end;
 
@@ -344,15 +344,15 @@
   -- создать документ
   function createDoc(p_root out dbms_xmldom.DOMNode,
                      p_name varchar2) return dbms_xmldom.DOMDocument is
-  
+
     doc  dbms_xmldom.DOMDocument;
     root dbms_xmldom.DOMElement;
   begin
-  
+
     doc    := dbms_xmldom.newDOMDocument;
     root   := dbms_xmldom.createElement(doc, p_name);
     p_root := dbms_xmldom.appendChild(dbms_xmldom.makeNode(doc), dbms_xmldom.makeNode(root));
-  
+
     return doc;
   end;
 
@@ -365,16 +365,16 @@
   -- создать дочернюю ноду
   function createNode(p_parent dbms_xmldom.DOMNode,
                       p_name   varchar2) return dbms_xmldom.DOMNode is
-  
+
     childNode dbms_xmldom.DOMElement;
   begin
-  
+
     if p_name is null then
       throw('Node name is NULL while createNode(1)');
     end if;
-  
+
     childNode := dbms_xmldom.createElement(dbms_xmldom.getOwnerDocument(p_parent), p_name);
-  
+
     return dbms_xmldom.appendChild(p_parent, dbms_xmldom.makeNode(childNode));
   end;
 
@@ -382,29 +382,29 @@
   function createNode(p_parent dbms_xmldom.DOMNode,
                       p_name   varchar2,
                       p_value  varchar2) return dbms_xmldom.DOMNode is
-  
+
     element dbms_xmldom.DOMElement;
     node    dbms_xmldom.DOMNode;
     text    dbms_xmldom.DOMText;
   begin
-  
+
     if p_name is not null then
-    
+
       element := dbms_xmldom.createElement(dbms_xmldom.getOwnerDocument(p_parent), p_name);
-    
+
       node := dbms_xmldom.makeNode(element);
       node := dbms_xmldom.appendChild(p_parent, node);
-    
+
       if p_value is not null then
-      
+
         text := dbms_xmldom.createTextNode(dbms_xmldom.getOwnerDocument(p_parent), p_value);
         freeNode(dbms_xmldom.appendChild(node, dbms_xmldom.makeNode(text)));
       end if;
-    
+
     else
       throw('Node name is NULL while createNode(2)');
     end if;
-  
+
     return node;
   end;
 
@@ -414,29 +414,29 @@
                        p_value      varchar2 default null,
                        p_attr_name  varchar2 default null,
                        p_attr_value varchar2 default null) is
-  
+
     element dbms_xmldom.DOMElement;
     node    dbms_xmldom.DOMNode;
     text    dbms_xmldom.DOMText;
   begin
-  
+
     if p_name is not null and nvl(p_value, p_attr_value) is not null then
-    
+
       element := dbms_xmldom.createElement(dbms_xmldom.getOwnerDocument(p_parent), p_name);
-    
+
       node := dbms_xmldom.makeNode(element);
       node := dbms_xmldom.appendChild(p_parent, node);
-    
+
       if p_value is not null then
-      
+
         text := dbms_xmldom.createTextNode(dbms_xmldom.getOwnerDocument(p_parent), p_value);
         node := dbms_xmldom.appendChild(node, dbms_xmldom.makeNode(text));
       end if;
-    
+
       if p_attr_value is not null then
         dbms_xmldom.setAttribute(element, p_attr_name, p_attr_value);
       end if;
-    
+
       dbms_xmldom.freeNode(node);
     end if;
   end;
@@ -469,49 +469,49 @@
   function getChild(p_parent dbms_xmldom.DOMNode,
                     p_name   varchar2,
                     p_index  integer default 0) return dbms_xmldom.DOMNode is
-  
+
     parentElement dbms_xmldom.DOMElement;
     childList     dbms_xmldom.DOMNodeList;
     childNode     dbms_xmldom.DOMNode;
   begin
-  
+
     parentElement := dbms_xmldom.makeElement(p_parent);
-  
+
     childList := dbms_xmldom.getChildrenByTagName(parentElement, p_name);
-  
+
     if dbms_xmldom.getLength(childList) > p_index then
-    
+
       childNode := dbms_xmldom.Item(childList, p_index);
-    
+
     elsif dbms_xmldom.getLength(childList) = p_index then
-    
+
       childNode := createNode(p_parent, p_name);
-    
+
     else
       throw('Node index out of range');
     end if;
-  
+
     return childNode;
   end;
 
   -- текстовая под-нода
   function getTextNode(p_node dbms_xmldom.DOMNode) return dbms_xmldom.DOMText is
-  
+
     children dbms_xmldom.DOMNodeList;
     child    dbms_xmldom.DOMNode;
   begin
-  
+
     children := dbms_xmldom.getChildNodes(p_node);
-  
+
     if dbms_xmldom.getLength(children) != 0 then
-    
+
       child := dbms_xmldom.getFirstChild(p_node);
-    
+
       if dbms_xmldom.getNodeType(child) in (dbms_xmldom.TEXT_NODE, dbms_xmldom.CDATA_SECTION_NODE) then
         return dbms_xmldom.makeText(child);
       end if;
     end if;
-  
+
     return null;
   end;
 
@@ -519,21 +519,21 @@
   function getText(p_doc   xmltype,
                    p_xpath varchar2,
                    p_nsmap varchar2 default null) return varchar2 is
-  
+
     xpath varchar2(1000);
     nsmap varchar2(1000);
   begin
-  
+
     -- xpath
     if instr(p_xpath, '@') = 0 then
       xpath := sprintf('%s/text()', p_xpath);
     else
       xpath := p_xpath;
     end if;
-  
+
     -- nsmap
     nsmap := getNSmap(p_nsmap);
-  
+
     if p_doc.existsNode(xpath, nsmap) != 0 then
       return unEntity(p_doc.extract(xpath, nsmap).getStringVal());
     else
@@ -543,23 +543,23 @@
 
   -- текстовое содержимое ноды
   function getText(p_node dbms_xmldom.DOMNode) return varchar2 is
-  
+
     child    dbms_xmldom.DOMNode;
     children dbms_xmldom.DOMNodeList;
     result   varchar2(32767);
   begin
-  
+
     children := dbms_xmldom.getChildNodes(p_node);
-  
+
     for i in 0 .. dbms_xmldom.getLength(children) - 1 loop
-    
+
       child := dbms_xmldom.item(children, i);
-    
+
       if dbms_xmldom.getNodeType(child) in (dbms_xmldom.TEXT_NODE, dbms_xmldom.CDATA_SECTION_NODE) then
         result := result || dbms_xmldom.getNodeValue(child);
       end if;
     end loop;
-  
+
     return result;
   end;
 
@@ -568,7 +568,7 @@
                    p_xpath varchar2,
                    p_nsmap varchar2 default null) return boolean is
   begin
-  
+
     return toBool(getText(p_doc, p_xpath, p_nsmap));
   end;
 
@@ -583,7 +583,7 @@
                      p_xpath varchar2,
                      p_nsmap varchar2 default null) return number is
   begin
-  
+
     return to_number(getText(p_doc, p_xpath, p_nsmap), NLS_NUMERIC);
   end;
 
@@ -598,7 +598,7 @@
                       p_xpath varchar2,
                       p_nsmap varchar2 default null) return integer is
   begin
-  
+
     return trunc(getNumber(p_doc, p_xpath, p_nsmap));
   end;
 
@@ -613,7 +613,7 @@
                    p_xpath  varchar2,
                    p_format varchar2 default FMT_DATE) return date is
   begin
-  
+
     return toDate(p_value => getText(p_doc, p_xpath), p_format => p_format);
   end;
 
@@ -629,7 +629,7 @@
                        p_xpath  varchar2,
                        p_format varchar2 default FMT_DATETIME) return date is
   begin
-  
+
     return toDateTime(p_value => getText(p_doc, p_xpath), p_format => p_format);
   end;
 
@@ -638,18 +638,18 @@
                        p_format varchar2 default FMT_DATETIME) return date is
   begin
     return toDateTime(p_value => getText(p_node), p_format => p_format);
-  
+
   end;
 
   -- прочитать атрибут
   function getAttrValue(p_node dbms_xmldom.DOMNode,
                         p_attr varchar2) return varchar2 is
-  
+
     element dbms_xmldom.DOMElement;
   begin
-  
+
     if p_attr is not null then
-    
+
       element := dbms_xmldom.makeElement(p_node);
       return dbms_xmldom.getAttribute(element, p_attr);
     else
@@ -657,18 +657,18 @@
     end if;
   end;
 
-  -- SQL-совместимое содержимое ноды 
+  -- SQL-совместимое содержимое ноды
   function getSQLValue(p_node dbms_xmldom.DOMNode) return varchar2 is
-  
+
     colName varchar2(1000);
     colText varchar2(32767);
   begin
-  
+
     colName := getNodeName(p_node);
     colText := getText(p_node);
-  
+
     if colText is not null then
-    
+
       if lower(colName) like 'is%' and toBool(colText) is not null then
         return to_int(toBool(colText));
       elsif lower(colName) like '%date%' and colText like '____-__-__T' then
@@ -679,19 +679,19 @@
         return colText;
       end if;
     end if;
-  
+
     return colText;
   end;
 
   -- установить значение ноды
   procedure setText(p_node  dbms_xmldom.DOMNode,
                     p_value varchar2) is
-  
+
     textNode dbms_xmldom.DOMText;
   begin
-  
+
     textNode := getTextNode(p_node);
-  
+
     if not dbms_xmldom.isNull(textNode) then
       dbms_xmldom.setNodeValue(dbms_xmldom.makeNode(textNode), p_value);
     else
@@ -703,12 +703,12 @@
   -- установить значение ноды
   procedure setClob(p_node  dbms_xmldom.DOMNode,
                     p_value clob) is
-  
+
     textNode dbms_xmldom.DOMText;
   begin
-  
+
     textNode := getTextNode(p_node);
-  
+
     if not dbms_xmldom.isNull(textNode) then
       dbms_xmldom.setNodeValue(dbms_xmldom.makeNode(textNode), p_value);
     else
@@ -757,12 +757,12 @@
   procedure setAttrValue(p_node  dbms_xmldom.DOMNode,
                          p_attr  varchar2,
                          p_value varchar2) is
-  
+
     element dbms_xmldom.DOMElement;
   begin
-  
+
     if p_attr is not null then
-    
+
       element := dbms_xmldom.makeElement(p_node);
       dbms_xmldom.setAttribute(element, p_attr, p_value);
     end if;
@@ -776,25 +776,25 @@
 
   -- уровень ноды от корня
   function getNodeLevel(p_node dbms_xmldom.DOMNode) return integer is
-  
+
     i          integer := 0;
     parentNode dbms_xmldom.DOMNode := p_node;
   begin
-  
+
     loop
       parentNode := dbms_xmldom.getParentNode(parentNode);
       exit when dbms_xmldom.isNull(parentNode);
-    
+
       inc(i);
     end loop;
-  
+
     return i;
   end;
 
   -- название ноды
   function getNodeName(p_node dbms_xmldom.DOMNode) return varchar2 is
   begin
-  
+
     return dbms_xmldom.getNodeName(p_node);
   end;
 

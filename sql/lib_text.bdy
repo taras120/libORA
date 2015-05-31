@@ -20,21 +20,21 @@
 
   function split(p_text  varchar2,
                  p_delim char) return t_array is
-  
+
     a t_array;
     i integer;
     c varchar(2);
   begin
-  
+
     if p_text is not null then
-    
+
       i := 1;
       a(i) := null;
-    
+
       for p in 1 .. length(p_text) loop
-      
+
         c := substr(p_text, p, 1);
-      
+
         if c != p_delim then
           a(i) := a(i) || c;
         elsif a(i) is not null then
@@ -43,9 +43,9 @@
         end if;
       end loop;
     end if;
-  
+
     return a;
-  
+
   exception
     when NO_DATA_FOUND then
       a.delete;
@@ -56,19 +56,19 @@
 
   function join(p_arr   t_array,
                 p_delim varchar2 default null) return varchar2 is
-  
+
     result varchar2(32767);
   begin
-  
+
     for i in 1 .. p_arr.count loop
-    
+
       if result is null then
         result := p_arr(i);
       else
         result := result || p_delim || p_arr(i);
       end if;
     end loop;
-  
+
     return result;
   end;
 
@@ -82,17 +82,17 @@
   function camel(p_text varchar2) return varchar2 is
     a t_array;
   begin
-  
+
     if instr(p_text, '_') != 0 then
-    
+
       a := split(p_text, '_');
-    
+
       for i in 1 .. a.count loop
         a(i) := initcap(a(i));
       end loop;
-    
+
       return join(a);
-    
+
     else
       return initcap(p_text);
     end if;
@@ -101,9 +101,9 @@
   function lower_camel(p_text varchar2) return varchar2 is
     result varchar2(32767);
   begin
-  
+
     result := camel(p_text);
-  
+
     if length(result) > 1 then
       return lower(substr(result, 1, 1)) || substr(result, 2);
     elsif length(result) = 1 then
@@ -116,9 +116,9 @@
   function upper_camel(p_text varchar2) return varchar2 is
     result varchar2(32767);
   begin
-  
+
     result := camel(p_text);
-  
+
     if length(result) > 1 then
       return upper(substr(result, 1, 1)) || substr(result, 2);
     elsif length(result) = 1 then
@@ -160,24 +160,24 @@
     n integer := 0;
     p integer := 0;
   begin
-  
+
     if p_text is not null then
-    
+
       for i in 1 .. length(p_text) - 1 loop
-      
+
         if is_lower(substr(p_text, i, 1)) and is_upper(substr(p_text, i + 1, 1)) then
           inc(n);
           a(n) := upper(substr(p_text, p + 1, i - p));
           p := i;
         end if;
       end loop;
-    
+
       if p < length(p_text) then
         a(n + 1) := upper(substr(p_text, p + 1, length(p_text) - p));
       end if;
-    
+
       return join(a, '_');
-    
+
     else
       return null;
     end if;
@@ -187,7 +187,7 @@
                     p_pattern varchar2,
                     p_offset  integer) return integer is
   begin
-  
+
     return instr(p_text, p_pattern, p_offset);
   end;
 
@@ -218,10 +218,10 @@
                   p_arg6   varchar2 default null,
                   p_arg7   varchar2 default null,
                   p_arg8   varchar2 default null) return varchar2 is
-  
+
     result varchar2(32767);
   begin
-  
+
     result := utl_lms.format_message(p_format,
                                      p_arg1,
                                      p_arg2,
@@ -231,23 +231,23 @@
                                      p_arg6,
                                      p_arg7,
                                      p_arg8);
-  
+
     return replace(result, '\n', const.CRLF);
   end;
 
   -- print to dbms_out
   procedure print(p_text varchar2) is
-  
+
     lines t_array;
     line  varchar2(32767);
   begin
-  
+
     lines := split(p_text, const.LF);
-  
+
     for i in 1 .. lines.count loop
-    
+
       line := replace(lines(i), const.CR, null);
-    
+
       if i < lines.count then
         dbms_output.put_line(line);
       else
@@ -273,9 +273,9 @@
                    p_arg6   varchar2 default null,
                    p_arg7   varchar2 default null,
                    p_arg8   varchar2 default null) is
-  
+
   begin
-  
+
     print(format(p_format => p_format,
                  p_arg1   => p_arg1,
                  p_arg2   => p_arg2,
@@ -298,7 +298,7 @@
                      p_arg7   varchar2 default null,
                      p_arg8   varchar2 default null) is
   begin
-  
+
     printf(p_format => p_format,
            p_arg1   => p_arg1,
            p_arg2   => p_arg2,
@@ -308,39 +308,39 @@
            p_arg6   => p_arg6,
            p_arg7   => p_arg7,
            p_arg8   => p_arg8);
-  
+
     println();
   end;
 
   function repeat(p_text  varchar2,
                   p_times integer) return varchar2 is
-  
+
     result varchar2(4000);
   begin
-  
+
     for n in 1 .. p_times loop
       result := result || p_text;
     end loop;
-  
+
     return result;
   end;
 
   function repeat(p_text  varchar2,
                   p_delim varchar2,
                   p_times integer) return varchar2 is
-  
+
     result varchar2(4000);
   begin
-  
+
     for n in 1 .. p_times loop
-    
+
       if result is null then
         result := result || p_text;
       else
         result := result || p_delim || p_text;
       end if;
     end loop;
-  
+
     return result;
   end;
 

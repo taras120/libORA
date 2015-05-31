@@ -5,8 +5,9 @@
   -- Author  : Taras Lyuklyanchuk
   -- Created : 13.05.2015 14:25:17
   -- Purpose : Mailer Library
-  
+
   -- defaults
+  MAIL_SERVER varchar2(100) := lib_util.server_host_name;
   SENDER_NAME varchar2(100) := lib_util.remote_os_user;
   SENDER_MAIL varchar2(100) := sprintf('%s@%s', user, lib_util.server_host_name);
 

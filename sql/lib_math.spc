@@ -3,7 +3,7 @@
   -- LibORA PL/SQL Library
   -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
-  -- Created : 26.04.2014 11:37:59  
+  -- Created : 26.04.2014 11:37:59
   -- Purpose : Mathematical Functions
 
   type t_date_list is table of date;

@@ -3,7 +3,7 @@
   -- LibORA PL/SQL Library
   -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
-  -- Created : 26.11.2014 11:37:59  
+  -- Created : 26.11.2014 11:37:59
   -- Purpose : PL/SQL Utillity Functions
 
   function this_user return all_users%rowtype;
@@ -29,6 +29,10 @@
   function remote_host_address return varchar2;
 
   procedure sleep(ms integer);
+
+  function get_nls_parameters return types.hash_map;
+
+  function get_nls_parameter(p_name varchar2) return varchar2;
 
 end;
 /

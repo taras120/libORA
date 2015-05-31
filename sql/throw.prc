@@ -10,7 +10,7 @@
 
   -- Raise an exception with formating
   -- LibORA PL/SQL Library
-  -- http://bitbucket.org/rtfm/libora  
+  -- http://bitbucket.org/rtfm/libora
   -- (c) 1981-2014 Taras Lyuklyanchuk
 
 begin

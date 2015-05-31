@@ -3,7 +3,7 @@
   -- LibORA PL/SQL Library
   -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
-  -- Created : 26.11.2014 11:37:59  
+  -- Created : 26.11.2014 11:37:59
   -- Purpose : PL/SQL Utillity Functions
 
   cursor c_user(p_user_id integer) is
@@ -73,6 +73,26 @@
   procedure sleep(ms integer) is
   begin
     dbms_lock.sleep(ms / 1000);
+  end;
+
+  function get_nls_parameters return types.hash_map is
+  
+    result types.hash_map;
+  begin
+    for q in (select t.parameter, t.value
+                from nls_session_parameters t
+              union
+              select t.parameter, t.value
+                from nls_database_parameters t
+               where t.parameter not in (select parameter from nls_session_parameters)) loop
+    
+      result(q.parameter) := q.value;
+    end loop;
+  end;
+
+  function get_nls_parameter(p_name varchar2) return varchar2 is
+  begin
+    return get_nls_parameters()(p_name);
   end;
 
 end;

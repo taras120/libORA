@@ -25,7 +25,7 @@
   type hmap_iv is table of varchar2(4000) index by binary_integer;
   type hmap_ii is table of integer index by binary_integer;
   type hmap_id is table of date index by binary_integer;
-  
+
 end;
 /
 

@@ -22,16 +22,16 @@
     line   varchar2(1000);
     status integer;
   begin
-  
+
     println();
     dbms_output.get_line(line => line, status => status);
-  
+
     if status = 0 then
       g_level := L_DEBUG;
     else
       g_level := L_INFO;
     end if;
-  
+
     -- initialization complete
     info('%s Logger initialized (%s)',
          to_char(sysdate, sprintf('%s %s', FMT_DATE, FMT_TIME)),
@@ -60,11 +60,11 @@
 
   procedure set_level(p_level integer) is
   begin
-  
+
     if p_level != g_level then
-    
+
       g_level := p_level;
-    
+
       log(g_level, 'Log level changed to "%s"', this_lname());
     end if;
   end;
@@ -94,23 +94,23 @@
   procedure print(p_level integer,
                   p_text  varchar2) is
   begin
-  
+
     if g_format = FMT_NONE then
-    
+
       println(p_text);
-    
+
     elsif g_format = FMT_BRIEF then
-    
+
       printlnf('%s: %s', get_lname(p_level), p_text);
-    
+
     elsif g_format = FMT_FULL then
-    
+
       printlnf('%s %s %s',
                rpad(get_lname(p_level), 5, const.SPC),
                to_char(sysdate, FMT_TIME),
                p_text);
     end if;
-  
+
   end;
 
   procedure log(p_level integer,

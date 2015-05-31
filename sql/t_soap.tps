@@ -3,7 +3,7 @@
 
 /**
   * LibORA PL/SQL Library
-  * http://bitbucket.org/rtfm/libora  
+  * http://bitbucket.org/rtfm/libora
   * Author  : Taras Lyuklyanchuk
   * Created : 26.05.2013 10:23:29
   * Purpose : HTTP SOAP Client

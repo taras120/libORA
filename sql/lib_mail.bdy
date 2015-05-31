@@ -112,7 +112,7 @@
     end if;
   
     -- подтверждение установки связи
-    utl_smtp.helo(p_conn, ib_conf.get_value('mail.smtp.server'));
+    utl_smtp.helo(p_conn, MAIL_SERVER);
   
     -- установка адреса отправителя
     utl_smtp.mail(p_conn, '<' || p_from_mail || '>');
@@ -125,25 +125,29 @@
   
     -- заголовки
     utl_smtp.write_data(p_conn,
-                        'Date: ' || to_char(sysdate,
-                                            'Dy, dd Mon yyyy hh24:mi:ss',
-                                            'nls_date_language = english') || utl_tcp.crlf);
+                        'Date: ' ||
+                        to_char(sysdate,
+                                'Dy, dd Mon yyyy hh24:mi:ss',
+                                'nls_date_language = english') ||
+                        utl_tcp.crlf);
   
     utl_smtp.write_data(p_conn,
-                        'From: ' || utf8_encode(p_from_name) || ' <' || p_from_mail || '>' ||
-                        utl_tcp.crlf);
+                        'From: ' || utf8_encode(p_from_name) || ' <' ||
+                        p_from_mail || '>' || utl_tcp.crlf);
   
     utl_smtp.write_data(p_conn, 'To: ' || p_mail || utl_tcp.crlf);
   
     utl_smtp.write_raw_data(p_conn,
                             utl_raw.cast_to_raw('Subject: ' ||
-                                                utf8_encode(nvl(p_subject, '(no subject)')) ||
+                                                utf8_encode(nvl(p_subject,
+                                                                '(no subject)')) ||
                                                 utl_tcp.crlf));
   
     -- прочие заголовки
     utl_smtp.write_data(p_conn, 'MIME-Version: 1.0' || utl_tcp.crlf);
   
-    utl_smtp.write_data(p_conn, 'Content-Transfer-Encoding: 8bit' || utl_tcp.crlf);
+    utl_smtp.write_data(p_conn,
+                        'Content-Transfer-Encoding: 8bit' || utl_tcp.crlf);
   
   end;
 
@@ -158,9 +162,9 @@
   begin
   
     -- установка соединения
-    conn := utl_smtp.open_connection(ib_conf.get_value('mail.smtp.server'));
+    conn := utl_smtp.open_connection(MAIL_SERVER);
   
-    -- заголовок      
+    -- заголовок
     header(p_conn      => conn,
            p_mail      => p_mail,
            p_subject   => p_subject,
@@ -168,9 +172,13 @@
            p_from_name => p_from_name);
   
     -- текст письма
-    utl_smtp.write_data(conn, 'Content-Type: text/plain; charset="Windows-1251"' || utl_tcp.crlf);
+    utl_smtp.write_data(conn,
+                        'Content-Type: text/plain; charset="Windows-1251"' ||
+                        utl_tcp.crlf);
   
-    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw(utl_tcp.crlf || p_message || utl_tcp.crlf));
+    utl_smtp.write_raw_data(conn,
+                            utl_raw.cast_to_raw(utl_tcp.crlf || p_message ||
+                                                utl_tcp.crlf));
   
     -- завершение соединения
     utl_smtp.close_data(conn);
@@ -200,9 +208,9 @@
   begin
   
     -- установка соединения
-    conn := utl_smtp.open_connection(ib_conf.get_value('mail.smtp.server'));
+    conn := utl_smtp.open_connection(MAIL_SERVER);
   
-    -- заголовок      
+    -- заголовок
     header(p_conn      => conn,
            p_mail      => p_mail,
            p_subject   => p_subject,
@@ -212,32 +220,41 @@
     -- boundary
     boundary := dbms_random.string('a', 16);
     utl_smtp.write_data(conn,
-                        'Content-Type: multipart/mixed; boundary= "' || boundary || '"' ||
-                        utl_tcp.crlf);
+                        'Content-Type: multipart/mixed; boundary= "' ||
+                        boundary || '"' || utl_tcp.crlf);
   
     -- текст письма
     if p_message is not null then
     
-      utl_smtp.write_data(conn, utl_tcp.crlf || '--' || boundary || utl_tcp.crlf);
+      utl_smtp.write_data(conn,
+                          utl_tcp.crlf || '--' || boundary || utl_tcp.crlf);
     
-      utl_smtp.write_data(conn, 'Content-Type: text/plain; charset="Windows-1251"' || utl_tcp.crlf);
+      utl_smtp.write_data(conn,
+                          'Content-Type: text/plain; charset="Windows-1251"' ||
+                          utl_tcp.crlf);
     
-      utl_smtp.write_data(conn, 'Content-Transfer-Encoding: 8bit' || utl_tcp.crlf);
+      utl_smtp.write_data(conn,
+                          'Content-Transfer-Encoding: 8bit' || utl_tcp.crlf);
     
-      utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw(utl_tcp.crlf || p_message || utl_tcp.crlf));
+      utl_smtp.write_raw_data(conn,
+                              utl_raw.cast_to_raw(utl_tcp.crlf || p_message ||
+                                                  utl_tcp.crlf));
     end if;
   
     -- вложение
     utl_smtp.write_data(conn, '--' || boundary || utl_tcp.crlf);
   
-    utl_smtp.write_data(conn, 'Content-Type: application/octet-stream' || utl_tcp.crlf);
+    utl_smtp.write_data(conn,
+                        'Content-Type: application/octet-stream' ||
+                        utl_tcp.crlf);
   
-    utl_smtp.write_data(conn, 'Content-Transfer-Encoding: base64' || utl_tcp.crlf);
+    utl_smtp.write_data(conn,
+                        'Content-Transfer-Encoding: base64' || utl_tcp.crlf);
   
     length := dbms_lob.getlength(p_file_blob);
     utl_smtp.write_data(conn,
-                        'Content-Disposition: attachment; filename="' || p_file_name || '"; size=' ||
-                        length || utl_tcp.crlf);
+                        'Content-Disposition: attachment; filename="' ||
+                        p_file_name || '"; size=' || length || utl_tcp.crlf);
   
     utl_smtp.write_data(conn, utl_tcp.crlf);
   
@@ -250,7 +267,9 @@
       offset := offset + buffsize;
     end loop;
   
-    utl_smtp.write_data(conn, utl_tcp.crlf || '--' || boundary || '--' || utl_tcp.crlf);
+    utl_smtp.write_data(conn,
+                        utl_tcp.crlf || '--' || boundary || '--' ||
+                        utl_tcp.crlf);
     utl_smtp.close_data(conn);
     utl_smtp.quit(conn);
   
@@ -323,7 +342,7 @@
     q.from_mail := p_from_mail;
     q.from_name := p_from_name;
   
-    select ref_seq.nextval into q.id from dual;
+    select mail_seq.nextval into q.id from dual;
     insert into mail_queue values q;
   end;
 
@@ -343,7 +362,7 @@
     q.file_name := p_file_name;
     q.file_blob := p_file_blob;
   
-    select ref_seq.nextval into q.id from dual;
+    select mail_seq.nextval into q.id from dual;
     insert into mail_queue values q;
   end;
 

@@ -3,7 +3,7 @@
   -- LibORA PL/SQL Library
   -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
-  -- Created : 26.07.2013 11:37:59  
+  -- Created : 26.07.2013 11:37:59
   -- Purpose : SQL Reflection Library
 
   -- oracle builtin types
@@ -126,7 +126,7 @@
                              p_name   varchar2,
                              p_rows#  integer default null) return xmltype;
 
-  -- вставить записи в таблицу 
+  -- вставить записи в таблицу
   function xml_insert(p_doc   xmltype,
                       p_table varchar2) return integer;
 

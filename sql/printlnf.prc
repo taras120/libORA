@@ -10,7 +10,7 @@
 
   -- Formatted DBMS-OUT Printing
   -- LibORA PL/SQL Library
-  -- http://bitbucket.org/rtfm/libora  
+  -- http://bitbucket.org/rtfm/libora
   -- (c) 1981-2014 Taras Lyuklyanchuk
 
   null_val constant varchar2(50) := 'NULL';

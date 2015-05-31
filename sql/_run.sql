@@ -1,11 +1,31 @@
-﻿------------------------------------------------------
--- Export file for user IBPE                        --
--- Created by tlyuklyanchuk on 29.05.2015, 13:54:46 --
-------------------------------------------------------
+﻿----------------------------------------------
+-- Export file for user LIB@ORA12           --
+-- Created by Taras on 31.05.2015, 12:09:05 --
+----------------------------------------------
 
 set define off
 spool _run.log
 
+prompt
+prompt Creating table MAIL_QUEUE
+prompt =========================
+prompt
+@@mail_queue.tab
+prompt
+prompt Creating sequence MAIL_SEQ
+prompt ==========================
+prompt
+@@mail_seq.seq
+prompt
+prompt Creating function TO_INT
+prompt ========================
+prompt
+@@to_int.fnc
+prompt
+prompt Creating package CONST
+prompt ======================
+prompt
+@@const.spc
 prompt
 prompt Creating package LIB_CRYPT
 prompt ==========================
@@ -21,6 +41,11 @@ prompt Creating package LIB_LOG
 prompt ========================
 prompt
 @@lib_log.spc
+prompt
+prompt Creating package TYPES
+prompt ======================
+prompt
+@@types.spc
 prompt
 prompt Creating package LIB_UTIL
 prompt =========================
@@ -41,11 +66,6 @@ prompt Creating package LIB_MATH
 prompt =========================
 prompt
 @@lib_math.spc
-prompt
-prompt Creating package TYPES
-prompt ======================
-prompt
-@@types.spc
 prompt
 prompt Creating type T_LIST
 prompt ====================
@@ -106,11 +126,6 @@ prompt Creating function TO_BOOL
 prompt =========================
 prompt
 @@to_bool.fnc
-prompt
-prompt Creating function TO_INT
-prompt ========================
-prompt
-@@to_int.fnc
 prompt
 prompt Creating procedure CALLF
 prompt ========================

@@ -151,7 +151,7 @@
   -- текстовая под-нода
   function getTextNode(p_node dbms_xmldom.DOMNode) return dbms_xmldom.DOMText;
 
-  -- текст  
+  -- текст
   function getText(p_doc   xmltype,
                    p_xpath varchar2,
                    p_nsmap varchar2 default null) return varchar2;
@@ -197,7 +197,7 @@
   function getAttrValue(p_node dbms_xmldom.DOMNode,
                         p_attr varchar2) return varchar2;
 
-  -- SQL-совместимое содержимое ноды 
+  -- SQL-совместимое содержимое ноды
   function getSQLValue(p_node dbms_xmldom.DOMNode) return varchar2;
 
   -- установить значение ноды
