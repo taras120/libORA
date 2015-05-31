@@ -88,6 +88,8 @@
     
       result(q.parameter) := q.value;
     end loop;
+  
+    return result;
   end;
 
   function get_nls_parameter(p_name varchar2) return varchar2 is
