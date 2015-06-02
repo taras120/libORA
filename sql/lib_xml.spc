@@ -4,7 +4,6 @@
   -- http://bitbucket.org/rtfm/libora
   -- XML DOM Library
   -- (c) 1981-2014 Taras Lyuklyanchuk
-  -- $Id$
 
   -- constants
   XML_TRUE     constant varchar2(16) := 'true';
