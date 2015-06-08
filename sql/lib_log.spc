@@ -29,9 +29,9 @@
 
   procedure set_level(p_level integer);
 
-  function get_lname(p_level integer) return varchar2;
+  function get_level_name return varchar2;
 
-  function this_lname return varchar2;
+  function get_level_name(p_level integer) return varchar2;
 
   function get_format return integer;
 
@@ -107,6 +107,10 @@
                   p_arg6 varchar2 default null,
                   p_arg7 varchar2 default null,
                   p_arg8 varchar2 default null);
+
+  procedure print_stack(p_level integer);
+
+  procedure print_stack;
 
 end;
 /

@@ -112,6 +112,9 @@
   function createDoc(p_root out dbms_xmldom.DOMNode,
                      p_name varchar2) return dbms_xmldom.DOMDocument;
 
+  -- создать документ из ноды
+  function createDoc(p_node dbms_xmldom.DOMNode) return dbms_xmldom.DOMDocument;
+
   -- создать ноду из документа
   function createNode(p_doc xmltype) return dbms_xmldom.DOMNode;
 
@@ -143,6 +146,9 @@
   -- проверка на Null
   function isNotNull(p_node dbms_xmldom.DOMNode) return boolean;
 
+  -- текстовая нода?
+  function isTextNode(p_node dbms_xmldom.DOMNode) return boolean;
+
   -- найти/создать дочернюю ноду
   function getChild(p_parent dbms_xmldom.DOMNode,
                     p_name   varchar2,
@@ -158,6 +164,9 @@
 
   -- текстовое содержимое ноды
   function getText(p_node dbms_xmldom.DOMNode) return varchar2;
+
+  -- текстовое содержимое ноды
+  function getClob(p_node dbms_xmldom.DOMNode) return clob;
 
   -- логическое значение
   function getBool(p_doc   xmltype,
@@ -200,6 +209,9 @@
   -- SQL-совместимое содержимое ноды
   function getSQLValue(p_node dbms_xmldom.DOMNode) return varchar2;
 
+  -- нода->xmltype
+  function getXmlType(p_node dbms_xmldom.DOMNode) return xmltype;
+
   -- установить значение ноды
   procedure setText(p_node  dbms_xmldom.DOMNode,
                     p_value varchar2);
@@ -240,6 +252,13 @@
 
   -- название ноды
   function getNodeName(p_node dbms_xmldom.DOMNode) return varchar2;
+
+  -- hash map parser
+  function parseHashMap(p_map  types.hashmap,
+                        p_name varchar2) return xmltype;
+
+  -- hash map serializer              
+  function serializeHashMap(p_xml xmltype) return types.hashmap;
 
 end;
 /

@@ -56,6 +56,12 @@
   -- base64 decode
   function b64_decode(p_blob blob) return blob;
 
+  -- пустой clob
+  function empty_clob return clob;
+
+  -- пустой blob
+  function empty_blob return blob;
+
 end;
 /
 

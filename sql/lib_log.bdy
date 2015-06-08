@@ -7,8 +7,8 @@
   -- Purpose : Logger Library
 
   -- constants
-  FMT_DATE constant varchar2(32) := 'yyyy-mm-dd';
-  FMT_TIME constant varchar2(32) := 'hh24:mi:ss';
+  FMT_DATE  constant varchar2(32) := 'yyyy-mm-dd';
+  FMT_TIME  constant varchar2(32) := 'hh24:mi:ss';
 
   -- global variables
   g_level  integer;
@@ -22,20 +22,20 @@
     line   varchar2(1000);
     status integer;
   begin
-
+  
     println();
     dbms_output.get_line(line => line, status => status);
-
+  
     if status = 0 then
       g_level := L_DEBUG;
     else
       g_level := L_INFO;
     end if;
-
+  
     -- initialization complete
-    info('%s Logger initialized (%s)',
-         to_char(sysdate, sprintf('%s %s', FMT_DATE, FMT_TIME)),
-         this_lname());
+    info(p_text => '%s Logger initialized (%s)',
+         p_arg1 => to_char(sysdate, sprintf('%s %s', FMT_DATE, FMT_TIME)),
+         p_arg2 => get_level_name());
   end;
 
   function is_level(p_level integer) return boolean is
@@ -60,23 +60,23 @@
 
   procedure set_level(p_level integer) is
   begin
-
+  
     if p_level != g_level then
-
+    
       g_level := p_level;
-
-      log(g_level, 'Log level changed to "%s"', this_lname());
+    
+      log(g_level, 'Log level changed to "%s"', get_level_name());
     end if;
   end;
 
-  function get_lname(p_level integer) return varchar2 is
+  function get_level_name return varchar2 is
   begin
-    return LEVEL_NAMES(p_level);
+    return LEVEL_NAMES(get_level);
   end;
 
-  function this_lname return varchar2 is
+  function get_level_name(p_level integer) return varchar2 is
   begin
-    return LEVEL_NAMES(g_level);
+    return LEVEL_NAMES(p_level);
   end;
 
   function get_format return integer is
@@ -86,6 +86,7 @@
 
   procedure set_format(p_format integer) is
   begin
+  
     if p_format != g_format then
       g_format := p_format;
     end if;
@@ -94,23 +95,22 @@
   procedure print(p_level integer,
                   p_text  varchar2) is
   begin
-
+  
     if g_format = FMT_NONE then
-
+    
       println(p_text);
-
+    
     elsif g_format = FMT_BRIEF then
-
-      printlnf('%s: %s', get_lname(p_level), p_text);
-
+    
+      printlnf('%s: %s', get_level_name(p_level), p_text);
+    
     elsif g_format = FMT_FULL then
-
+    
       printlnf('%s %s %s',
-               rpad(get_lname(p_level), 5, const.SPC),
+               rpad(get_level_name(p_level), 5, const.SPC),
                to_char(sysdate, FMT_TIME),
                p_text);
     end if;
-
   end;
 
   procedure log(p_level integer,
@@ -124,9 +124,19 @@
                 p_arg7  varchar2 default null,
                 p_arg8  varchar2 default null) is
   begin
+  
     if is_level(p_level) then
-      print(p_level,
-            sprintf(p_text, p_arg1, p_arg2, p_arg3, p_arg4, p_arg5, p_arg6, p_arg7, p_arg8));
+    
+      print(p_level => p_level,
+            p_text  => sprintf(p_text,
+                               p_arg1,
+                               p_arg2,
+                               p_arg3,
+                               p_arg4,
+                               p_arg5,
+                               p_arg6,
+                               p_arg7,
+                               p_arg8));
     end if;
   end;
 
@@ -206,6 +216,17 @@
                   p_arg8 varchar2 default null) is
   begin
     log(L_TRACE, p_text, p_arg1, p_arg2, p_arg3, p_arg4, p_arg5, p_arg6, p_arg7, p_arg8);
+  end;
+
+  procedure print_stack(p_level integer) is
+  begin
+    print(p_level, sqlerrm);
+    print(p_level, dbms_utility.format_error_backtrace);
+  end;
+
+  procedure print_stack is
+  begin
+    print_stack(L_ERROR);
   end;
 
 begin

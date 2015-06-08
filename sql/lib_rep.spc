@@ -12,7 +12,7 @@
   function get_tags(p_templ clob) return t_list;
 
   function get_data_map(p_tags t_list,
-                        p_data xmltype) return types.hash_map;
+                        p_data xmltype) return types.hashmap;
 
   function create_report(p_templ varchar2,
                          p_data  xmltype) return varchar2;

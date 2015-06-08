@@ -1,21 +1,11 @@
-﻿----------------------------------------------
--- Export file for user LIB@ORA12           --
--- Created by Taras on 31.05.2015, 12:12:11 --
-----------------------------------------------
+﻿------------------------------------------------------
+-- Export file for user IBPE@APRICOT                --
+-- Created by tlyuklyanchuk on 08.06.2015, 11:47:19 --
+------------------------------------------------------
 
 set define off
 spool _run.log
 
-prompt
-prompt Creating table MAIL_QUEUE
-prompt =========================
-prompt
-@@mail_queue.tab
-prompt
-prompt Creating sequence MAIL_SEQ
-prompt ==========================
-prompt
-@@mail_seq.seq
 prompt
 prompt Creating function TO_INT
 prompt ========================
@@ -92,6 +82,11 @@ prompt ========================
 prompt
 @@lib_xml.spc
 prompt
+prompt Creating package LIB_XSQL
+prompt =========================
+prompt
+@@lib_xsql.spc
+prompt
 prompt Creating type T_NVP
 prompt ===================
 prompt
@@ -106,6 +101,11 @@ prompt Creating type T_SOAP
 prompt ====================
 prompt
 @@t_soap.tps
+prompt
+prompt Creating function ENUM
+prompt ======================
+prompt
+@@enum.fnc
 prompt
 prompt Creating function IIF
 prompt =====================
@@ -206,6 +206,11 @@ prompt Creating package body LIB_XML
 prompt =============================
 prompt
 @@lib_xml.bdy
+prompt
+prompt Creating package body LIB_XSQL
+prompt ==============================
+prompt
+@@lib_xsql.bdy
 prompt
 prompt Creating type body T_SOAP
 prompt =========================

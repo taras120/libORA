@@ -42,6 +42,14 @@
               p_x    double precision,
               p_ylen integer default 365) return double precision;
 
+  function nvlsum(a1 number,
+                  a2 number,
+                  a3 number default null,
+                  a4 number default null,
+                  a5 number default null,
+                  a6 number default null,
+                  a7 number default null) return number;
+
 end;
 /
 

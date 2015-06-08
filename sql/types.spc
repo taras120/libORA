@@ -7,24 +7,37 @@
   -- Purpose : Common Usage PL/SQL Types
 
   -- refcursor
-  type refcursor is ref cursor;
+  type RefCursor is ref cursor;
 
   -- array list
-  type list is table of varchar2(4000);
+  type List is table of varchar2(4000);
 
   -- hashmap
-  type hash_map is table of varchar2(4000) index by varchar2(4000);
+  type HashMap is table of varchar2(4000) index by varchar2(4000);
 
-  -- list of hashmaps
-  type map_list is table of hash_map index by binary_integer;
+  -- table of hashmaps
+  type HashTable is table of hashmap index by binary_integer;
 
-  -- <key,value> hash maps
-  type hmap_vv is table of varchar2(4000) index by varchar2(4000);
-  type hmap_vi is table of integer index by varchar2(4000);
-  type hmap_vd is table of date index by varchar2(4000);
-  type hmap_iv is table of varchar2(4000) index by binary_integer;
-  type hmap_ii is table of integer index by binary_integer;
-  type hmap_id is table of date index by binary_integer;
+  -- hashmap of clob
+  type ClobHashMap is table of clob index by varchar2(4000);
+
+  -- array types
+  type StringArray is table of varchar2(4000);
+  type NumberArray is table of number;
+  type IntegerArray is table of integer;
+  type DateArray is table of date;
+
+  -- <str,value> maps
+  type StringMap is table of varchar2(4000) index by varchar2(4000);
+  type NumberMap is table of number index by varchar2(4000);
+  type IntegerMap is table of integer index by varchar2(4000);
+  type DateMap is table of date index by varchar2(4000);
+
+  -- <int,value> maps
+  type StringTable is table of varchar2(4000) index by binary_integer;
+  type NumberTable is table of number index by binary_integer;
+  type IntegerTable is table of integer index by binary_integer;
+  type DateTable is table of date index by binary_integer;
 
 end;
 /

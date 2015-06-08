@@ -11,17 +11,17 @@
 
   function this_user return all_users%rowtype is
   begin
-  
+
     for q in c_user(userenv('schemaid')) loop
       return q;
     end loop;
-  
+
     return null;
   end;
 
   function this_schema return varchar2 is
   begin
-  
+
     return this_user().username;
   end;
 
@@ -75,9 +75,9 @@
     dbms_lock.sleep(ms / 1000);
   end;
 
-  function get_nls_parameters return types.hash_map is
-  
-    result types.hash_map;
+  function get_nls_parameters return types.hashmap is
+
+    result types.hashmap;
   begin
     for q in (select t.parameter, t.value
                 from nls_session_parameters t
@@ -85,10 +85,10 @@
               select t.parameter, t.value
                 from nls_database_parameters t
                where t.parameter not in (select parameter from nls_session_parameters)) loop
-    
+
       result(q.parameter) := q.value;
     end loop;
-  
+
     return result;
   end;
 

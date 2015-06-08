@@ -98,6 +98,48 @@
 
     return v_s;
   end;
+  
+  function nvlsum(a1 number,
+                                  a2 number,
+                                  a3 number default null,
+                                  a4 number default null,
+                                  a5 number default null,
+                                  a6 number default null,
+                                  a7 number default null) return number is
+
+  result number;
+begin
+
+  if a1 is null then
+    result := a2;
+  elsif a2 is null then
+    result := a1;
+  else
+    result := a1 + a2;
+  end if;
+
+  if a3 is not null then
+    result := nvlsum(result, a3);
+  end if;
+
+  if a4 is not null then
+    result := nvlsum(result, a4);
+  end if;
+
+  if a5 is not null then
+    result := nvlsum(result, a5);
+  end if;
+
+  if a6 is not null then
+    result := nvlsum(result, a6);
+  end if;
+
+  if a7 is not null then
+    result := nvlsum(result, a7);
+  end if;
+
+  return result;
+end;
 
 end;
 /

@@ -56,9 +56,9 @@
   end;
 
   function get_data_map(p_tags t_list,
-                        p_data xmltype) return types.hash_map is
+                        p_data xmltype) return types.hashmap is
 
-    data_map types.hash_map;
+    data_map types.hashmap;
   begin
 
     for i in 1 .. p_tags.count loop
@@ -72,7 +72,7 @@
                          p_data  xmltype) return varchar2 is
 
     tags     t_list;
-    data_map types.hash_map;
+    data_map types.hashmap;
     report   varchar2(32767) := p_templ;
   begin
 
@@ -93,7 +93,7 @@
                          p_data  xmltype) return clob is
 
     tags     t_list;
-    data_map types.hash_map;
+    data_map types.hashmap;
     report   clob := p_templ;
   begin
 

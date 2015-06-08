@@ -30,7 +30,7 @@
 
   procedure sleep(ms integer);
 
-  function get_nls_parameters return types.hash_map;
+  function get_nls_parameters return types.hashmap;
 
   function get_nls_parameter(p_name varchar2) return varchar2;
 
