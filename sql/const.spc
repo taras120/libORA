@@ -16,10 +16,16 @@
   I_TRUE  constant integer := to_int(true);
   I_FALSE constant integer := to_int(false);
 
-  -- date/time
-  D_HOUR   constant number := 1 / 24;
-  D_MINUTE constant number := D_HOUR / 60;
-  D_SECOND constant number := D_MINUTE / 60;
+  -- date/time 
+  HRS_PER_DAY    constant integer := 24;
+  MIN_PER_HOUR   constant integer := 60;
+  SEC_PER_MINUTE constant integer := 60;
+  SEC_PER_HOUR   constant integer := SEC_PER_MINUTE * MIN_PER_HOUR;
+  MIN_PER_DAY    constant integer := HRS_PER_DAY * MIN_PER_HOUR;
+  SEC_PER_DAY    constant integer := MIN_PER_DAY * SEC_PER_MINUTE;
+  DATE_HOUR      constant number := 1 / HRS_PER_DAY;
+  DATE_MINUTE    constant number := DATE_HOUR / MIN_PER_HOUR;
+  DATE_SECOND    constant number := DATE_MINUTE / SEC_PER_MINUTE;
 
   -- charset id's
   UTF8    constant varchar2(16) := 'UTF8';

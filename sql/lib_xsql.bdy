@@ -12,9 +12,14 @@
   DML_DELETE constant integer := 3;
 
   -- ora xml tags
-  TAG_ROW    constant varchar2(100) := lower(dbms_xmlquery.DEFAULT_ROWTAG);
-  TAG_ROWSET constant varchar2(100) := lower(dbms_xmlquery.DEFAULT_ROWSETTAG);
-  ATTR_ROW#  constant varchar2(100) := lower(dbms_xmlquery.DEFAULT_ROWIDATTR);
+  TAG_ROW     constant varchar2(100) := lower(dbms_xmlquery.DEFAULT_ROWTAG);
+  TAG_ROWSET  constant varchar2(100) := lower(dbms_xmlquery.DEFAULT_ROWSETTAG);
+  TAG_RESULT  constant varchar2(100) := 'result';
+  TAG_RESULTS constant varchar2(100) := 'results';
+  ATTR_ROW#   constant varchar2(100) := lower(dbms_xmlquery.DEFAULT_ROWIDATTR);
+  ATTR_TYPE   constant varchar2(100) := 'type';
+  ATTR_SCALE  constant varchar2(100) := 'scale';
+  ATTR_LENGTH constant varchar2(100) := 'length';
 
   -- xml datatypes map
   XML_TYPE  types.StringTable;
@@ -139,11 +144,11 @@
         value.xml_type := get_xml_type(value.type#);
       
         if value.xml_type is not null then
-          lib_xml.setAttrValue(valueNode, 'type', value.xml_type);
+          lib_xml.setAttrValue(valueNode, ATTR_TYPE, value.xml_type);
         end if;
       
         if column.scale != 0 then
-          lib_xml.setAttrValue(valueNode, 'scale', column.scale);
+          lib_xml.setAttrValue(valueNode, ATTR_SCALE, column.scale);
         end if;
       
       end loop;
@@ -279,7 +284,7 @@
           -- column record
           column          := null;
           column.pos#     := c + 1;
-          column.xml_type := lib_xml.getAttrValue(colNode, 'type');
+          column.xml_type := lib_xml.getAttrValue(colNode, ATTR_TYPE);
         
           if column.xml_type is not null then
             column.type#    := get_type#(column.xml_type);
@@ -316,8 +321,8 @@
           end if;
         
           column.name   := colName;
-          column.length := lib_xml.getAttrValue(colNode, 'length');
-          column.scale  := lib_xml.getAttrValue(colNode, 'scale');
+          column.scale  := lib_xml.getAttrValue(colNode, ATTR_SCALE);
+          column.length := lib_xml.getAttrValue(colNode, ATTR_LENGTH);
         
           describe.extend;
           describe(column.pos#) := column;
@@ -333,66 +338,34 @@
   end;
 
   -- SQL-совместимое содержимое ноды
-  function get_value(p_node   dbms_xmldom.DOMNode,
-                     p_column in out lib_sql.t_column) return varchar2 is
+  function get_value(p_node  dbms_xmldom.DOMNode,
+                     p_type# integer) return varchar2 is
   
     colText varchar2(32767);
   begin
   
-    --colName := lib_xml.getNodeName(p_node);
     colText := lib_xml.getText(p_node);
   
-    if colText is not null then
-    
-      if p_column.type# = lib_sql.PLS_BOOLEAN then
+    if p_type# is not null then 
+          
+      if p_type# = lib_sql.PLS_BOOLEAN then
       
         return to_int(lib_xml.toBool(colText));
       
-      elsif p_column.type# = lib_sql.ORA_DATE then
+      elsif p_type# = lib_sql.ORA_DATE then
       
         return lib_xml.toDateTime(colText);
       
-      elsif p_column.type# in (lib_sql.ORA_NUMBER, lib_sql.PLS_INTEGER) then
+      elsif p_type# in (lib_sql.ORA_NUMBER, lib_sql.PLS_INTEGER) then
       
         return lib_xml.toNumber(colText);
       
-        /*elsif p_column.type# is null then
-        
-          if lower(colName) like 'is%' and lib_xml.toBool(colText) is not null then
-          
-            p_column.type# := USER_BOOLEAN;
-            return to_int(lib_xml.toBool(colText));
-          
-          elsif lower(colName) like '%date%' and colText like '____-__-__T' then
-          
-            p_column.type# := ORA_DATE;
-            return lib_xml.toDate(colText);
-          
-          elsif lower(colName) like '%date%' and colText like '____-__-__T%' then
-          
-            p_column.type# := ORA_DATE;
-            return lib_xml.toDateTime(colText);
-          
-          elsif colText like '____-__-__' then
-          
-            begin
-            
-              colText        := lib_xml.toDate(colText);
-              p_column.type# := ORA_DATE;
-            
-            exception
-              when others then
-                return colText;
-            end;
-          
-          end if;
-        */
+      else
+        return colText;
       end if;
     
-      return colText;
-    
     else
-      return null;
+      return colText;
     end if;
   end;
 
@@ -538,7 +511,7 @@
           colNode := dbms_xmldom.item(colList, c);
           col     := lib_sql.get_column(descr, lib_xml.getNodeName(colNode));
         
-          lib_xml.createNode(rowNode2, lib_text.uncamel(col.name), get_value(colNode, col));
+          lib_xml.createNode(rowNode2, lib_text.uncamel(col.name), get_value(colNode, col.type#));
         end loop;
       end loop;
     
@@ -718,8 +691,7 @@
       doc     := lib_xml.createDoc(p_xargs);
       root    := lib_xml.getRootNode(doc);
       argList := dbms_xmldom.getChildNodes(root);
-    
-      args# := dbms_xmldom.getLength(argList);
+      args#   := dbms_xmldom.getLength(argList);
     
       if args# > 1 then
       
@@ -731,15 +703,25 @@
         bindBy# := true;
       end if;
     
-      for i in 0 .. dbms_xmldom.getLength(argList) - 1 loop
+      for i in 1 .. args# loop
       
         arg     := null;
-        argNode := dbms_xmldom.item(argList, i);
+        argNode := dbms_xmldom.item(argList, i - 1);
       
         -- read
-        if lib_xml.isTextNode(argNode) then
+        if lib_xml.isTextNode(argNode) then        
         
-          arg.text := lib_xml.getText(argNode);
+          arg.xml_type := lib_xml.getAttrValue(argNode, ATTR_TYPE);
+          
+          if instr(arg.xml_type, ':') != 0 then
+            arg.xml_type := lib_text.split(arg.xml_type, ':')(2);
+          end if;
+        
+          if arg.xml_type is not null then
+            arg.type# := get_type#(arg.xml_type);
+          end if;
+        
+          arg.text := get_value(argNode, arg.type#);
         
         else
         
@@ -750,7 +732,7 @@
       
         -- store to args map
         if bindBy# then
-          args(i + 1) := arg;
+          args(i) := arg;
         else
           args(lib_xml.getNodeName(argNode)) := arg;
         end if;
@@ -772,7 +754,7 @@
     end if;
   
     if p_result.xml_type is not null then
-      lib_xml.setAttrValue(p_node, 'type', p_result.xml_type);
+      lib_xml.setAttrValue(p_node, ATTR_TYPE, p_result.xml_type);
     end if;
   end;
 
@@ -783,7 +765,7 @@
     root dbms_xmldom.DOMNode;
   begin
   
-    doc := lib_xml.createDoc(root, 'result');
+    doc := lib_xml.createDoc(root, TAG_RESULT);
   
     serialize_result(root, p_result);
   
@@ -799,7 +781,7 @@
     node dbms_xmldom.DOMNode;
   begin
   
-    doc := lib_xml.createDoc(root, 'results');
+    doc := lib_xml.createDoc(root, TAG_RESULTS);
   
     if p_results.count != 0 then
     

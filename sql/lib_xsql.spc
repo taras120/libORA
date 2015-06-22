@@ -29,7 +29,7 @@
 
   -- SQL-совместимое содержимое ноды
   function get_value(p_node   dbms_xmldom.DOMNode,
-                     p_column in out lib_sql.t_column) return varchar2;
+                     p_type#  integer) return varchar2;
 
   function camelize(p_doc xmltype) return xmltype;
 

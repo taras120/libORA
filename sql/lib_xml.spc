@@ -108,9 +108,12 @@
   -- создать документ
   function createDoc(p_doc xmltype) return dbms_xmldom.DOMDocument;
 
-  -- создать xml-документ
+  -- создать xml-документ и корневую ноду
   function createDoc(p_root out dbms_xmldom.DOMNode,
                      p_name varchar2) return dbms_xmldom.DOMDocument;
+
+  -- создать документ и корневую ноду
+  function createDoc(p_name varchar2) return dbms_xmldom.DOMNode;
 
   -- создать документ из ноды
   function createDoc(p_node dbms_xmldom.DOMNode) return dbms_xmldom.DOMDocument;
@@ -130,9 +133,42 @@
   -- создать дочернюю ноду
   procedure createNode(p_parent     dbms_xmldom.DOMNode,
                        p_name       varchar2,
-                       p_value      varchar2 default null,
+                       p_value      varchar2,
                        p_attr_name  varchar2 default null,
                        p_attr_value varchar2 default null);
+
+  -- создать дочернюю ноду
+  procedure createNode(p_parent dbms_xmldom.DOMNode,
+                       p_name   varchar2,
+                       p_value  boolean);
+
+  -- создать дочернюю ноду
+  procedure createNode(p_parent dbms_xmldom.DOMNode,
+                       p_name   varchar2,
+                       p_value  date);
+
+  -- создать дочернюю ноду
+  procedure createNode(p_parent dbms_xmldom.DOMNode,
+                       p_name   varchar2,
+                       p_value  number);
+
+  -- добавить документ как ноду
+  function appendChild(p_node  dbms_xmldom.DOMNode,
+                       p_child xmltype) return dbms_xmldom.DOMNode;
+
+  -- добавить документ как ноду
+  procedure appendChild(p_node  dbms_xmldom.DOMNode,
+                        p_child xmltype);
+
+  -- добавить документ как ноду
+  function appendChild(p_node  dbms_xmldom.DOMNode,
+                       p_name  varchar2,
+                       p_child xmltype) return dbms_xmldom.DOMNode;
+
+  -- добавить документ как ноду
+  procedure appendChild(p_node  dbms_xmldom.DOMNode,
+                        p_name  varchar2,
+                        p_child xmltype);
 
   -- уничтожить ноду
   procedure freeNode(p_node dbms_xmldom.DOMNode);

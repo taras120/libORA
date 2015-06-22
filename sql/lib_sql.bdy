@@ -1018,7 +1018,7 @@
   
     for i in n .. p_proc.signature.count loop
     
-      param := p_proc.signature(n);
+      param := p_proc.signature(i);
     
       if i = n then
         add(':%s', param.pos#);
@@ -1051,6 +1051,10 @@
     param         t_parameter;
     proc          t_procedure;
   begin
+  
+    if p_name is null then
+      throw('Procedure name is required');
+    end if;
   
     proc.name      := p_name;
     proc.is_func   := false;
@@ -1510,7 +1514,12 @@
   
     results := call_procedure$(p_name, p_args, p_ovl#);
   
-    return results(FUNC_RESULT);
+    if results.exists(FUNC_RESULT) then
+      return results(FUNC_RESULT);
+    else
+      return null;
+    end if;
+  
   end;
 
 begin

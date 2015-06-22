@@ -1,11 +1,16 @@
 ﻿------------------------------------------------------
 -- Export file for user IBPE@APRICOT                --
--- Created by tlyuklyanchuk on 08.06.2015, 11:47:19 --
+-- Created by tlyuklyanchuk on 22.06.2015, 11:27:53 --
 ------------------------------------------------------
 
 set define off
 spool _run.log
 
+prompt
+prompt Creating sequence MAIL_SEQ
+prompt ==========================
+prompt
+@@mail_seq.seq
 prompt
 prompt Creating function TO_INT
 prompt ========================

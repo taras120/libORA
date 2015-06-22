@@ -341,7 +341,7 @@
     return dbms_xmldom.newDOMDocument(p_doc);
   end;
 
-  -- создать документ
+  -- создать документ и корневую ноду
   function createDoc(p_root out dbms_xmldom.DOMNode,
                      p_name varchar2) return dbms_xmldom.DOMDocument is
   
@@ -354,6 +354,19 @@
     p_root := dbms_xmldom.appendChild(dbms_xmldom.makeNode(doc), dbms_xmldom.makeNode(root));
   
     return doc;
+  end;
+
+  -- создать документ и корневую ноду
+  function createDoc(p_name varchar2) return dbms_xmldom.DOMNode is
+  
+    doc  dbms_xmldom.DOMDocument;
+    root dbms_xmldom.DOMElement;
+  begin
+  
+    doc  := dbms_xmldom.newDOMDocument;
+    root := dbms_xmldom.createElement(doc, p_name);
+  
+    return dbms_xmldom.appendChild(dbms_xmldom.makeNode(doc), dbms_xmldom.makeNode(root));
   end;
 
   -- создать документ из ноды
@@ -427,34 +440,108 @@
   -- создать дочернюю ноду
   procedure createNode(p_parent     dbms_xmldom.DOMNode,
                        p_name       varchar2,
-                       p_value      varchar2 default null,
+                       p_value      varchar2,
                        p_attr_name  varchar2 default null,
                        p_attr_value varchar2 default null) is
   
     element dbms_xmldom.DOMElement;
     node    dbms_xmldom.DOMNode;
-    text    dbms_xmldom.DOMText;
   begin
   
-    if p_name is not null and nvl(p_value, p_attr_value) is not null then
+    node := createNode(p_parent => p_parent, p_name => p_name, p_value => p_value);
+  
+    if p_attr_value is not null then
     
-      element := dbms_xmldom.createElement(dbms_xmldom.getOwnerDocument(p_parent), p_name);
-    
-      node := dbms_xmldom.makeNode(element);
-      node := dbms_xmldom.appendChild(p_parent, node);
-    
-      if p_value is not null then
-      
-        text := dbms_xmldom.createTextNode(dbms_xmldom.getOwnerDocument(p_parent), p_value);
-        node := dbms_xmldom.appendChild(node, dbms_xmldom.makeNode(text));
-      end if;
-    
-      if p_attr_value is not null then
-        dbms_xmldom.setAttribute(element, p_attr_name, p_attr_value);
-      end if;
-    
-      dbms_xmldom.freeNode(node);
+      element := dbms_xmldom.makeElement(node);
+      dbms_xmldom.setAttribute(element, p_attr_name, p_attr_value);
     end if;
+  
+    freeNode(node);
+  end;
+
+  -- создать дочернюю ноду
+  procedure createNode(p_parent dbms_xmldom.DOMNode,
+                       p_name   varchar2,
+                       p_value  boolean) is
+  begin
+  
+    createNode(p_parent => p_parent, p_name => p_name, p_value => xmlBool(p_value));
+  end;
+
+  -- создать дочернюю ноду
+  procedure createNode(p_parent dbms_xmldom.DOMNode,
+                       p_name   varchar2,
+                       p_value  date) is
+  begin
+  
+    createNode(p_parent => p_parent, p_name => p_name, p_value => xmlDateTime(p_value));
+  end;
+
+  -- создать дочернюю ноду
+  procedure createNode(p_parent dbms_xmldom.DOMNode,
+                       p_name   varchar2,
+                       p_value  number) is
+  begin
+  
+    createNode(p_parent => p_parent, p_name => p_name, p_value => xmlNumber(p_value));
+  end;
+
+  -- добавить документ как ноду
+  function appendChild(p_node  dbms_xmldom.DOMNode,
+                       p_child xmltype) return dbms_xmldom.DOMNode is
+  
+    doc   dbms_xmldom.DOMDocument;
+    child dbms_xmldom.DOMNode;
+  begin
+  
+    doc   := dbms_xmldom.getOwnerDocument(p_node);
+    child := getRootNode(createDoc(p_child));
+  
+    child := dbms_xmldom.adoptNode(doc, child);
+    return dbms_xmldom.appendChild(p_node, child);
+  end;
+
+  -- добавить документ как ноду
+  procedure appendChild(p_node  dbms_xmldom.DOMNode,
+                        p_child xmltype) is
+  begin
+    freeNode(appendChild(p_node, p_child));
+  end;
+
+  -- добавить документ как ноду
+  function appendChild(p_node  dbms_xmldom.DOMNode,
+                       p_name  varchar2,
+                       p_child xmltype) return dbms_xmldom.DOMNode is
+  
+    doc        dbms_xmldom.DOMDocument;
+    childRoot  dbms_xmldom.DOMNode;
+    importNode dbms_xmldom.DOMNode;
+    importList dbms_xmldom.DOMNodeList;
+  begin
+  
+    doc       := dbms_xmldom.getOwnerDocument(p_node);
+    childRoot := createNode(p_node, p_name);
+  
+    importList := dbms_xmldom.getChildNodes(getRootNode(createDoc(p_child)));
+  
+    -- rows
+    for i in 0 .. dbms_xmldom.getLength(importList) - 1 loop
+    
+      importNode := dbms_xmldom.item(importList, i);
+    
+      importNode := dbms_xmldom.adoptNode(doc, importNode);
+      freeNode(dbms_xmldom.appendChild(childRoot, importNode));
+    end loop;
+  
+    return childRoot;
+  end;
+
+  -- добавить документ как ноду
+  procedure appendChild(p_node  dbms_xmldom.DOMNode,
+                        p_name  varchar2,
+                        p_child xmltype) is
+  begin
+    freeNode(appendChild(p_node, p_name, p_child));
   end;
 
   -- уничтожить ноду
