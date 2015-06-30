@@ -6,14 +6,8 @@
   -- Created : 15.05.2015 0:11:57
   -- Purpose : Large Object Library
 
-  -- raw cast
-  function to_raw(input varchar2) return raw;
-
-  -- blob to clob conversion
-  function to_clob(p_blob blob) return clob;
-
-  -- clob to blob conversion
-  function to_blob(p_clob clob) return blob;
+  function split(p_clob  clob,
+                 p_delim varchar2) return types.list;
 
   -- print blob
   procedure print(p_blob blob);
@@ -34,7 +28,11 @@
 
   function instr(p_text    clob,
                  p_pattern varchar2,
-                 p_offset  integer) return integer;
+                 p_offset  integer default 1) return integer;
+
+  function size_of(p_blob blob) return integer;
+
+  function size_of(p_clob clob) return integer;
 
   function index_of(p_text    clob,
                     p_pattern varchar2,
@@ -43,6 +41,25 @@
   procedure substitute(p_text    in out clob,
                        p_search  varchar2,
                        p_replace varchar2);
+
+  -- пустой clob
+  function new_clob return clob;
+
+  -- пустой blob
+  function new_blob return blob;
+
+  -- raw cast
+  function to_raw(input varchar2) return raw;
+
+  -- blob to clob conversion
+  function to_clob(p_blob blob) return clob;
+
+  -- clob to blob conversion
+  function to_blob(p_clob clob) return blob;
+
+  -- blob to clob conversion
+  function to_clob(p_blob blob,
+                   p_csid integer) return clob;
 
   -- base64 encode
   function b64_encode(p_blob blob) return clob;
@@ -55,12 +72,6 @@
 
   -- base64 decode
   function b64_decode(p_blob blob) return blob;
-
-  -- пустой clob
-  function empty_clob return clob;
-
-  -- пустой blob
-  function empty_blob return blob;
 
 end;
 /

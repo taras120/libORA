@@ -92,13 +92,19 @@
   function is_similar(p_text1 varchar2,
                       p_text2 varchar2) return boolean;
 
-  function index_of(p_text    clob,
+  function index_of(p_text    varchar2,
                     p_pattern varchar2,
                     p_offset  integer) return integer;
 
-  function substring(p_text  clob,
+  -- substring(text,from,to)
+  function substring(p_text  varchar2,
                      p_begin integer,
                      p_end   integer) return varchar2;
+
+  -- substring+trim
+  function subtrim(p_text  varchar2,
+                   p_begin integer,
+                   p_end   integer) return varchar2;
 
   function b64_encode(p_text in varchar2) return varchar2;
 

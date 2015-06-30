@@ -250,12 +250,12 @@
       return join(a);
     
     elsif is_upper(p_text) then
-
+    
       return initcap(p_text);
-
+    
     else
-      
-      return p_text;  
+    
+      return p_text;
     end if;
   end;
 
@@ -347,7 +347,7 @@
     return is_equal(p_text1 => p_text1, p_text2 => p_text2, b_case_ignore => true);
   end;
 
-  function index_of(p_text    clob,
+  function index_of(p_text    varchar2,
                     p_pattern varchar2,
                     p_offset  integer) return integer is
   begin
@@ -355,12 +355,20 @@
     return instr(p_text, p_pattern, p_offset);
   end;
 
-  -- java style substring
-  function substring(p_text  clob,
+  -- substring(text,from,to)
+  function substring(p_text  varchar2,
                      p_begin integer,
                      p_end   integer) return varchar2 is
   begin
     return substr(p_text, p_begin, p_end - p_begin + 1);
+  end;
+
+  -- substring+trim
+  function subtrim(p_text  varchar2,
+                   p_begin integer,
+                   p_end   integer) return varchar2 is
+  begin
+    return trim(substring(p_text, p_begin, p_end));
   end;
 
   -- base64 encode

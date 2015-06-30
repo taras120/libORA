@@ -98,7 +98,7 @@
 
     return v_s;
   end;
-  
+
   function nvlsum(a1 number,
                                   a2 number,
                                   a3 number default null,

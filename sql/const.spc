@@ -16,7 +16,7 @@
   I_TRUE  constant integer := to_int(true);
   I_FALSE constant integer := to_int(false);
 
-  -- date/time 
+  -- date/time
   HRS_PER_DAY    constant integer := 24;
   MIN_PER_HOUR   constant integer := 60;
   SEC_PER_MINUTE constant integer := 60;

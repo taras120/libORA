@@ -293,7 +293,7 @@
   function parseHashMap(p_map  types.hashmap,
                         p_name varchar2) return xmltype;
 
-  -- hash map serializer              
+  -- hash map serializer
   function serializeHashMap(p_xml xmltype) return types.hashmap;
 
 end;
