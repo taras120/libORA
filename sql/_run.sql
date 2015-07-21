@@ -1,11 +1,16 @@
 ﻿------------------------------------------------------
 -- Export file for user IBPE@APRICOT                --
--- Created by tlyuklyanchuk on 22.06.2015, 11:27:53 --
+-- Created by tlyuklyanchuk on 21.07.2015, 11:09:02 --
 ------------------------------------------------------
 
 set define off
 spool _run.log
 
+prompt
+prompt Creating table MAIL_QUEUE
+prompt =========================
+prompt
+@@mail_queue.tab
 prompt
 prompt Creating sequence MAIL_SEQ
 prompt ==========================
@@ -27,6 +32,11 @@ prompt ==========================
 prompt
 @@lib_crypt.spc
 prompt
+prompt Creating package TYPES
+prompt ======================
+prompt
+@@types.spc
+prompt
 prompt Creating package LIB_LOB
 prompt ========================
 prompt
@@ -37,15 +47,15 @@ prompt ========================
 prompt
 @@lib_log.spc
 prompt
-prompt Creating package TYPES
-prompt ======================
-prompt
-@@types.spc
-prompt
 prompt Creating package LIB_UTIL
 prompt =========================
 prompt
 @@lib_util.spc
+prompt
+prompt Creating procedure INC
+prompt ======================
+prompt
+@@inc.prc
 prompt
 prompt Creating function SPRINTF
 prompt =========================
@@ -56,6 +66,11 @@ prompt Creating package LIB_MAIL
 prompt =========================
 prompt
 @@lib_mail.spc
+prompt
+prompt Creating package LIB_MAP
+prompt ========================
+prompt
+@@lib_map.spc
 prompt
 prompt Creating package LIB_MATH
 prompt =========================
@@ -137,11 +152,6 @@ prompt ========================
 prompt
 @@callf.prc
 prompt
-prompt Creating procedure INC
-prompt ======================
-prompt
-@@inc.prc
-prompt
 prompt Creating procedure PRINTLN
 prompt ==========================
 prompt
@@ -181,6 +191,11 @@ prompt Creating package body LIB_MAIL
 prompt ==============================
 prompt
 @@lib_mail.bdy
+prompt
+prompt Creating package body LIB_MAP
+prompt =============================
+prompt
+@@lib_map.bdy
 prompt
 prompt Creating package body LIB_MATH
 prompt ==============================

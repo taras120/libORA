@@ -23,9 +23,7 @@
 
         y := lib_lob.index_of(p_templ, CLOSE_TAG, x);
 
-        if (y >= 0) then
-
-          y := y + length(CLOSE_TAG);
+        if (y > 0) then
 
           tag := lib_lob.substring(p_templ, x, y);
 

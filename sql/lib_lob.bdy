@@ -21,7 +21,7 @@
     if p_clob is not null and p_delim is not null then
     
       delim_len := length(p_delim);
-      clob_len  := dbms_lob.getLength(p_clob);
+      clob_len  := size_of(p_clob);
     
       while offset < clob_len loop
       
@@ -77,10 +77,8 @@
     amount   integer;
     offset   integer := 1;
     buffsize integer := BUFF_SIZE;
-    clobsize integer;
+    clobsize integer := size_of(p_clob);
   begin
-  
-    clobsize := dbms_lob.getLength(p_clob);
   
     if p_clob is not null then
     
@@ -139,11 +137,13 @@
 
   function size_of(p_blob blob) return integer is
   begin
+  
     return dbms_lob.getLength(p_blob);
   end;
 
   function size_of(p_clob clob) return integer is
   begin
+  
     return dbms_lob.getLength(p_clob);
   end;
 
@@ -214,7 +214,7 @@
     
       dbms_lob.createTemporary(result, true);
     
-      for i in 1 .. ceil(dbms_lob.getLength(p_blob) / buffsize) loop
+      for i in 1 .. ceil(size_of(p_blob) / buffsize) loop
       
         buff := utl_raw.cast_to_varchar2(dbms_lob.substr(p_blob, buffsize, offset));
       
@@ -263,7 +263,7 @@
     
       dbms_lob.createTemporary(result, true);
     
-      for i in 1 .. ceil(dbms_lob.getLength(p_clob) / buffsize) loop
+      for i in 1 .. ceil(size_of(p_clob) / buffsize) loop
       
         buff := utl_raw.cast_to_varchar2(dbms_lob.substr(p_clob, buffsize, offset));
       
@@ -311,7 +311,7 @@
   
     if p_blob is not null then
     
-      v_length := dbms_lob.getLength(p_blob);
+      v_length := size_of(p_blob);
     
       if v_length != 0 then
       
@@ -348,7 +348,7 @@
   
     if p_clob is not null then
     
-      v_length := dbms_lob.getLength(p_clob);
+      v_length := size_of(p_clob);
     
       if v_length != 0 then
       

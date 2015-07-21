@@ -11,17 +11,17 @@
 
   function this_user return all_users%rowtype is
   begin
-
+  
     for q in c_user(userenv('schemaid')) loop
       return q;
     end loop;
-
+  
     return null;
   end;
 
   function this_schema return varchar2 is
   begin
-
+  
     return this_user().username;
   end;
 
@@ -70,13 +70,8 @@
     return sys_context('userenv', 'ip_address');
   end;
 
-  procedure sleep(ms integer) is
-  begin
-    dbms_lock.sleep(ms / 1000);
-  end;
-
   function get_nls_parameters return types.hashmap is
-
+  
     result types.hashmap;
   begin
     for q in (select t.parameter, t.value
@@ -85,16 +80,24 @@
               select t.parameter, t.value
                 from nls_database_parameters t
                where t.parameter not in (select parameter from nls_session_parameters)) loop
-
+    
       result(q.parameter) := q.value;
     end loop;
-
+  
     return result;
   end;
 
   function get_nls_parameter(p_name varchar2) return varchar2 is
   begin
     return get_nls_parameters()(p_name);
+  end;
+
+  -- установить параметр сессии
+  procedure set_session_param(p_param varchar2,
+                              p_value varchar2) is
+  begin
+  
+    execute immediate sprintf('alter session set %s = "%s"', p_param, p_value);
   end;
 
 end;

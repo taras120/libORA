@@ -30,6 +30,22 @@
     end if;
   end;
 
+  function cropb(p_text  varchar2,
+                 p_bytes integer) return varchar2 is
+  
+    result varchar2(32767);
+  begin
+  
+    result := crop(p_text, p_bytes);
+  
+    while lengthb(result) > p_bytes loop
+    
+      result := substr(result, 1, length(result) - 1);
+    end loop;
+  
+    return result;
+  end;
+
   function rcrop(p_text   varchar2,
                  p_length integer) return varchar2 is
     pos# integer;
@@ -104,6 +120,26 @@
   begin
   
     for i in 1 .. p_arr.count loop
+    
+      if result is null then
+        result := p_arr(i);
+      else
+        result := result || p_delim || p_arr(i);
+      end if;
+    end loop;
+  
+    return result;
+  end;
+
+  function join2(p_arr   t_array,
+                 p_begin integer default null,
+                 p_end   integer default null,
+                 p_delim varchar2 default null) return varchar2 is
+  
+    result varchar2(32767);
+  begin
+  
+    for i in nvl(p_begin, 1) .. nvl(p_end, p_arr.count) loop
     
       if result is null then
         result := p_arr(i);
@@ -293,8 +329,7 @@
 
   function uncamel(p_text varchar2) return varchar2 is
   
-    a t_array;
-    n integer := 0;
+    a t_array := t_array();
     p integer := 0;
   begin
   
@@ -302,15 +337,18 @@
     
       for i in 1 .. length(p_text) - 1 loop
       
-        if is_lower(substr(p_text, i, 1)) and is_upper(substr(p_text, i + 1, 1)) then
-          inc(n);
-          a(n) := upper(substr(p_text, p + 1, i - p));
+        if is_lower(substr(p_text, i, 1)) and is_upper(substr(p_text, i + 1, 1)) then          
+          
+          a.extend;
+          a(a.last) := upper(substr(p_text, p + 1, i - p));
           p := i;
         end if;
       end loop;
     
       if p < length(p_text) then
-        a(n + 1) := upper(substr(p_text, p + 1, length(p_text) - p));
+        
+        a.extend;
+        a(a.last) := upper(substr(p_text, p + 1, length(p_text) - p));
       end if;
     
       return join(a, '_');
@@ -513,14 +551,13 @@
   -- returns only numbers from text
   function only_numbers(p_text varchar2) return varchar2 is
   
-    digits constant varchar2(10) := '0123456789';
     result varchar2(32767);
   begin
   
     if p_text is not null then
     
       for i in 1 .. length(p_text) loop
-        if instr(digits, substr(p_text, i, 1)) != 0 then
+        if instr(DIGITS, substr(p_text, i, 1)) != 0 then
           concat(result, substr(p_text, i, 1));
         end if;
       end loop;
@@ -543,6 +580,53 @@
         elsif upper(substr(p_text, i, 1)) != lower(substr(p_text, i, 1)) then
           concat(result, substr(p_text, i, 1));
         end if;
+      end loop;
+    end if;
+  
+    return result;
+  end;
+
+  function split_array(p_arr   t_array,
+                       p_delim varchar2) return t_cube is
+    result t_cube := t_cube();
+  begin
+  
+    for i in 1 .. p_arr.count loop
+    
+      result.extend;
+      result(i) := split(p_arr(i), p_delim);
+    end loop;
+  
+    return result;
+  end;
+
+  function singularity(p_arr   t_array,
+                       p_delim varchar2) return integer is
+    v_cube t_cube;
+    v_1st  t_array;
+    result integer := 0;
+  begin
+  
+    if p_arr.count > 0 then
+    
+      v_cube := split_array(p_arr, p_delim);
+    
+      v_1st := v_cube(1);
+    
+      for y in 1 .. v_1st.count loop
+      
+        if v_1st(y) is null then
+          return result;
+        end if;
+      
+        for x in 2 .. v_cube.count loop
+        
+          if v_cube(x).count < y or v_cube(x) (y) is null or v_cube(x) (y) != v_1st(y) then
+            return result;
+          end if;
+        end loop;
+      
+        inc(result);
       end loop;
     end if;
   

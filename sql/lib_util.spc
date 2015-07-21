@@ -28,11 +28,13 @@
 
   function remote_host_address return varchar2;
 
-  procedure sleep(ms integer);
-
   function get_nls_parameters return types.hashmap;
 
   function get_nls_parameter(p_name varchar2) return varchar2;
+
+  -- установить параметр сессии
+  procedure set_session_param(p_param varchar2,
+                              p_value varchar2);
 
 end;
 /

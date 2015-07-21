@@ -6,6 +6,7 @@
   -- (c) 1981-2014 Taras Lyuklyanchuk
 
   type t_array is table of varchar2(32767);
+  type t_cube is table of t_array;
 
   -- fill string with a character
   function fill(p_len  integer,
@@ -16,6 +17,9 @@
   function crop(p_text   varchar2,
                 p_length integer) return varchar2;
 
+  function cropb(p_text  varchar2,
+                 p_bytes integer) return varchar2;
+
   function rcrop(p_text   varchar2,
                  p_length integer) return varchar2;
 
@@ -24,6 +28,11 @@
 
   function join(p_arr   t_array,
                 p_delim varchar2 default null) return varchar2;
+
+  function join2(p_arr   t_array,
+                 p_begin integer default null,
+                 p_end   integer default null,
+                 p_delim varchar2 default null) return varchar2;
 
   function wrap(p_text  varchar2,
                 p_index integer,
@@ -128,6 +137,12 @@
   function only_numbers(p_text varchar2) return varchar2;
 
   function only_alphanum(p_text varchar2) return varchar2;
+
+  function split_array(p_arr   t_array,
+                       p_delim varchar2) return t_cube;
+
+  function singularity(p_arr   t_array,
+                       p_delim varchar2) return integer;
 
 end;
 /

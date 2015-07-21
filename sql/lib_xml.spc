@@ -5,12 +5,31 @@
   -- XML DOM Library
   -- (c) 1981-2014 Taras Lyuklyanchuk
 
+  -- types
+  type t_xml_list is table of xmltype;
+  type t_node_list is table of dbms_xmldom.DOMNode;
+
   -- constants
-  XML_TRUE     constant varchar2(16) := 'true';
-  XML_FALSE    constant varchar2(16) := 'false';
-  FMT_DATE     constant varchar2(32) := 'yyyy-mm-dd';
-  FMT_TIME     constant varchar2(32) := 'hh24:mi:ss';
-  FMT_DATETIME constant varchar2(32) := FMT_DATE || 'T' || FMT_TIME;
+  XML_TRUE        constant varchar2(10) := 'true';
+  XML_FALSE       constant varchar2(10) := 'false';
+  DATE_FORMAT     constant varchar2(100) := 'yyyy-mm-dd';
+  TIME_FORMAT     constant varchar2(100) := 'hh24:mi:ss';
+  DATETIME_FORMAT constant varchar2(100) := DATE_FORMAT || 'T' || TIME_FORMAT;
+
+  -- XMLSchema types
+  XS_STRING   constant varchar2(100) := 'string';
+  XS_BOOLEAN  constant varchar2(100) := 'boolean';
+  XS_BYTE     constant varchar2(100) := 'byte';
+  XS_INT      constant varchar2(100) := 'int';
+  XS_INTEGER  constant varchar2(100) := 'integer';
+  XS_LONG     constant varchar2(100) := 'long';
+  XS_SHORT    constant varchar2(100) := 'short';
+  XS_FLOAT    constant varchar2(100) := 'float';
+  XS_DOUBLE   constant varchar2(100) := 'double';
+  XS_DECIMAL  constant varchar2(100) := 'decimal';
+  XS_DATE     constant varchar2(100) := 'date';
+  XS_TIME     constant varchar2(100) := 'time';
+  XS_DATETIME constant varchar2(100) := 'dateTime';
 
   -- types
   type t_cursor is ref cursor;
@@ -42,11 +61,11 @@
 
   -- текст->дата
   function toDate(p_value  varchar2,
-                  p_format varchar2 default FMT_DATE) return date;
+                  p_format varchar2 default DATE_FORMAT) return date;
 
   -- текст->дата+время
   function toDateTime(p_value  varchar2,
-                      p_format varchar2 default FMT_DATETIME) return date;
+                      p_format varchar2 default DATETIME_FORMAT) return date;
 
   -- текст->число
   function toNumber(p_value  varchar2,
@@ -63,11 +82,11 @@
 
   -- дата->текст
   function xmlDate(p_value  date,
-                   p_format varchar2 default FMT_DATE) return varchar2;
+                   p_format varchar2 default DATE_FORMAT) return varchar2;
 
   -- время->текст
   function xmlTime(p_value  date,
-                   p_format varchar2 default FMT_TIME) return varchar2;
+                   p_format varchar2 default TIME_FORMAT) return varchar2;
 
   -- дата+время->текст
   function xmlDateTime(p_value date) return varchar2;
@@ -231,12 +250,12 @@
   -- дата
   function getDate(p_doc    xmltype,
                    p_xpath  varchar2,
-                   p_format varchar2 default FMT_DATE) return date;
+                   p_format varchar2 default DATE_FORMAT) return date;
 
   -- дата+время
   function getDateTime(p_doc    xmltype,
                        p_xpath  varchar2,
-                       p_format varchar2 default FMT_DATETIME) return date;
+                       p_format varchar2 default DATETIME_FORMAT) return date;
 
   -- прочитать атрибут
   function getAttrValue(p_node dbms_xmldom.DOMNode,
@@ -247,6 +266,14 @@
 
   -- нода->xmltype
   function getXmlType(p_node dbms_xmldom.DOMNode) return xmltype;
+
+  -- извлечь список
+  function getList(p_doc   xmltype,
+                   p_xpath varchar2) return t_xml_list;
+
+  -- извлечь список
+  function getList(p_parent dbms_xmldom.DOMNode,
+                   p_name   varchar2) return t_node_list;
 
   -- установить значение ноды
   procedure setText(p_node  dbms_xmldom.DOMNode,
@@ -288,6 +315,9 @@
 
   -- название ноды
   function getNodeName(p_node dbms_xmldom.DOMNode) return varchar2;
+
+  -- путь к ноде
+  function getNodePath(p_node dbms_xmldom.DOMNode) return varchar2;
 
   -- hash map parser
   function parseHashMap(p_map  types.hashmap,

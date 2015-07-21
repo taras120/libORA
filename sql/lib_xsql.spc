@@ -28,8 +28,8 @@
   function describe_xml(p_doc xmltype) return lib_sql.t_describe;
 
   -- SQL-совместимое содержимое ноды
-  function get_value(p_node   dbms_xmldom.DOMNode,
-                     p_type#  integer) return varchar2;
+  function get_value(p_node  dbms_xmldom.DOMNode,
+                     p_type# integer) return varchar2;
 
   function camelize(p_doc xmltype) return xmltype;
 

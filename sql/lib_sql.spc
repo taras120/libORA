@@ -7,8 +7,6 @@
   -- Purpose : SQL Reflection Library
 
   /* Oracle Builtin Datatypes */
-
-  -- sql native datatypes
   ORA_VARCHAR2                constant integer := 1;
   ORA_NUMBER                  constant integer := 2;
   ORA_LONG                    constant integer := 8;
@@ -32,13 +30,13 @@
   ORA_UROWID                  constant integer := 208;
   ORA_TIMESTAMP_WITH_LOCAL_TZ constant integer := 231;
 
-  -- user defined types
+  /* User Defined Datatypes */
   UDT_ANYDATA    constant integer := 10901;
   UDT_ANYDATASET constant integer := 10902;
   UDT_XMLTYPE    constant integer := 10977;
   UDT_URITYPE    constant integer := 10978;
 
-  -- pl/sql datatypes
+  /* PL/SQL Datatypes */
   PLS_VOID         constant integer := 0;
   PLS_INTEGER      constant integer := 3;
   PLS_OPAQUE       constant integer := 58;
@@ -51,7 +49,7 @@
   PLS_TABLE        constant integer := 251;
   PLS_BOOLEAN      constant integer := 252;
 
-  -- external datatypes
+  /* External Datatypes */
   EXT_VARCHAR2                constant integer := 1;
   EXT_NUMBER                  constant integer := 2;
   EXT_INTEGER                 constant integer := 3;
@@ -87,18 +85,15 @@
   EXT_TIMESTAMP_WITH_LOCAL_TZ constant integer := 232;
 
   /* PL/SQL Parameters Constants */
-
   PRM_IN    constant integer := 0;
   PRM_OUT   constant integer := 1;
   PRM_INOUT constant integer := 2;
 
-  /* Other constants */
+  /* Other Constants */
   FUNC_RESULT          constant varchar2(10) := 'RESULT';
   COLUMN_MAX_LEN       constant integer := 30;
   ORA_VARCHAR2_MAX_LEN constant integer := 4000;
   PLS_VARCHAR2_MAX_LEN constant integer := 32767;
-
-  /* Library Datatypes */
 
   -- ref cursor
   type t_cursor is ref cursor;
@@ -155,8 +150,6 @@
     name      varchar2(1000),
     is_func   boolean,
     signature t_signature);
-
-  /* Library Methods */
 
   function get_type#(p_name varchar2) return integer;
 
