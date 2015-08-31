@@ -61,6 +61,10 @@
   function to_clob(p_blob blob,
                    p_csid integer) return clob;
 
+  -- blob to clob conversion
+  function to_blob(p_clob clob,
+                   p_csid integer) return blob;
+
   -- base64 encode
   function b64_encode(p_blob blob) return clob;
 
