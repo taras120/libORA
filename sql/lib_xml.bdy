@@ -2,7 +2,7 @@
 
   -- LibORA PL/SQL Library
   -- http://bitbucket.org/rtfm/libora
-  -- XML DOM Library
+  -- XML Library
   -- (c) 1981-2014 Taras Lyuklyanchuk
 
   -- constants
@@ -92,6 +92,7 @@
       for n in 0 .. dbms_xmldom.getLength(childList) - 1 loop
       
         childNode := dbms_xmldom.item(childList, n);
+      
         print(childNode, p_node);
       end loop;
     end if;
@@ -944,9 +945,9 @@
   function getList(p_doc   xmltype,
                    p_xpath varchar2) return t_xml_list is
   
-    n    integer;
-    rec  xmltype;
-    list t_xml_list := t_xml_list();
+    n      integer;
+    rec    xmltype;
+    result t_xml_list := t_xml_list();
   begin
   
     while p_doc is not null loop
@@ -956,23 +957,31 @@
       rec := p_doc.extract(sprintf('%s[position()=%s]/*', p_xpath, n));
       exit when rec is null;
     
-      list.extend;
-      list(list.last) := rec;
+      result.extend;
+      result(result.last) := rec;
     end loop;
   
-    return list;
+    return result;
   end;
 
   -- извлечь список
   function getList(p_parent dbms_xmldom.DOMNode,
                    p_name   varchar2) return t_node_list is
   
-    list t_node_list := t_node_list();
+    result   t_node_list := t_node_list();
+    nodeList dbms_xmldom.DOMNodeList;
   begin
   
-    throw('Not implemented yet');
+    nodeList := dbms_xmldom.getChildrenByTagName(dbms_xmldom.makeElement(p_parent), p_name);
   
-    return list;
+    -- recursive traverse
+    for n in 0 .. dbms_xmldom.getLength(nodeList) - 1 loop
+    
+      result.extend;
+      result(result.last) := dbms_xmldom.item(nodeList, n);
+    end loop;
+  
+    return result;
   end;
 
   -- установить значение ноды
@@ -1104,11 +1113,11 @@
   function getNodeName(p_node dbms_xmldom.DOMNode) return varchar2 is
   begin
   
-    --    if dbms_xmldom.getNodeType(p_node) = dbms_xmldom.TEXT_NODE then
-    --      return getNodeName(dbms_xmldom.getParentNode(p_node));
-    --    else
+    --  if dbms_xmldom.getNodeType(p_node) = dbms_xmldom.TEXT_NODE then
+    --    return getNodeName(dbms_xmldom.getParentNode(p_node));
+    --  else
     return dbms_xmldom.getNodeName(p_node);
-    --    end if;
+    --  end if;
   end;
 
   -- путь к ноде

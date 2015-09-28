@@ -2,7 +2,7 @@
 
   -- LibORA PL/SQL Library
   -- http://bitbucket.org/rtfm/libora
-  -- XML DOM Library
+  -- XML Library
   -- (c) 1981-2014 Taras Lyuklyanchuk
 
   -- types
