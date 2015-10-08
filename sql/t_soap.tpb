@@ -420,7 +420,7 @@
                                    sprintf('xmlns:soap="%s"', ns_soap));
 
     else
-      throw('Ошибка: HTTP/%s %s', resp.status_code, resp.reason_phrase);
+      throw('HTTP/%s %s', resp.status_code, resp.reason_phrase);
     end if;
 
   exception

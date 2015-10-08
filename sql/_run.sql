@@ -1,6 +1,6 @@
 ﻿------------------------------------------------------
--- Export file for user SPE@APRICOT                 --
--- Created by tlyuklyanchuk on 08.10.2015, 17:12:13 --
+-- Export file for user IBPE@APRICOT                --
+-- Created by tlyuklyanchuk on 08.10.2015, 17:13:46 --
 ------------------------------------------------------
 
 set define off
@@ -152,16 +152,6 @@ prompt ========================
 prompt
 @@callf.prc
 prompt
-prompt Creating procedure THROW
-prompt ========================
-prompt
-@@throw.prc
-prompt
-prompt Creating procedure ERROR
-prompt ========================
-prompt
-@@error.prc
-prompt
 prompt Creating procedure PRINTLN
 prompt ==========================
 prompt
@@ -176,6 +166,11 @@ prompt Creating procedure SWAP
 prompt =======================
 prompt
 @@swap.prc
+prompt
+prompt Creating procedure THROW
+prompt ========================
+prompt
+@@throw.prc
 prompt
 prompt Creating package body LIB_CRYPT
 prompt ===============================

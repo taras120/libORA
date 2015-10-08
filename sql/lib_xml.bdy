@@ -139,7 +139,9 @@
                     p_format varchar2 default null) return number is
   begin
   
-    if p_format is not null then
+    if p_value is null then
+      return null;
+    elsif p_format is not null then
       return to_number(p_value, p_format);
     else
       return to_number(p_value);
@@ -698,7 +700,8 @@
   end;
 
   -- текстовое содержимое ноды
-  function getText(p_node dbms_xmldom.DOMNode) return varchar2 is
+  function getText(p_node   dbms_xmldom.DOMNode,
+                   p_defval varchar2 default null) return varchar2 is
   
     child    dbms_xmldom.DOMNode;
     children dbms_xmldom.DOMNodeList;
@@ -720,16 +723,16 @@
         end if;
       end loop;
     
-      return result;
-    
     else
-      return dbms_xmldom.getNodeValue(p_node);
+    
+      result := dbms_xmldom.getNodeValue(p_node);
     end if;
   
+    return nvl(result, p_defval);
   end;
 
-  -- установить значение ноды
   /*
+   -- текстовое содержимое ноды  
    function getClob(p_node dbms_xmldom.DOMNode) return clob is
   
      child    dbms_xmldom.DOMNode;
@@ -781,6 +784,7 @@
   
    end;
   */
+
   -- текстовое содержимое ноды
   function getClob(p_node dbms_xmldom.DOMNode) return clob is
   
@@ -824,9 +828,15 @@
   end;
 
   -- логическое значение
-  function getBool(p_node dbms_xmldom.DOMNode) return boolean is
+  function getBool(p_node   dbms_xmldom.DOMNode,
+                   p_defval boolean default null) return boolean is
   begin
-    return toBool(getText(p_node));
+  
+    if isNotNull(p_node) then
+      return toBool(getText(p_node));
+    else
+      return p_defval;
+    end if;
   end;
 
   -- число с плавающей точкой
@@ -839,10 +849,15 @@
   end;
 
   -- число с плавающей точкой
-  function getNumber(p_node dbms_xmldom.DOMNode) return number is
+  function getNumber(p_node   dbms_xmldom.DOMNode,
+                     p_defval number default null) return number is
   begin
   
-    return toNumber(getText(p_node));
+    if isNotNull(p_node) then
+      return toNumber(getText(p_node));
+    else
+      return p_defval;
+    end if;
   end;
 
   -- целое число
@@ -855,9 +870,15 @@
   end;
 
   -- целое число
-  function getInteger(p_node dbms_xmldom.DOMNode) return integer is
+  function getInteger(p_node   dbms_xmldom.DOMNode,
+                      p_defval integer default null) return integer is
   begin
-    return toInteger(getText(p_node));
+  
+    if isNotNull(p_node) then
+      return toInteger(getText(p_node));
+    else
+      return p_defval;
+    end if;
   end;
 
   -- дата
@@ -873,6 +894,7 @@
   function getDate(p_node   dbms_xmldom.DOMNode,
                    p_format varchar2 default DATE_FORMAT) return date is
   begin
+  
     return toDate(p_value => getText(p_node), p_format => p_format);
   end;
 
@@ -889,8 +911,8 @@
   function getDateTime(p_node   dbms_xmldom.DOMNode,
                        p_format varchar2 default DATETIME_FORMAT) return date is
   begin
-    return toDateTime(p_value => getText(p_node), p_format => p_format);
   
+    return toDateTime(p_value => getText(p_node), p_format => p_format);
   end;
 
   -- прочитать атрибут
@@ -938,7 +960,8 @@
   -- нода->xmltype
   function getXmlType(p_node dbms_xmldom.DOMNode) return xmltype is
   begin
-    return dbms_xmldom.getxmltype(ownerDoc(p_node));
+    
+    return dbms_xmldom.getXmlType(ownerDoc(p_node));
   end;
 
   -- извлечь список

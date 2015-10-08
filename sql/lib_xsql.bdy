@@ -70,8 +70,8 @@
   function get_xml_type(p_type# integer,
                         p_value varchar2 default null) return varchar2 is
 
-    xs_types   types.StringList;
-    date_value date;
+    xs_types     types.StringList;
+    date_value   date;
     number_value number;
   begin
 
@@ -92,7 +92,8 @@
         date_value := lib_xml.toDateTime(p_value);
 
         if date_value = trunc(date_value) then
-          return /*lib_xml.XS_DATE;*/ lib_xml.XS_DATETIME;
+          return /*lib_xml.XS_DATE;*/
+          lib_xml.XS_DATETIME;
         else
           return lib_xml.XS_DATETIME;
         end if;
@@ -914,7 +915,7 @@
     result := lib_sql.call_function$(p_name => p_name, p_args => parse_arguments(p_xargs));
 
     if result.type# in (lib_sql.UDT_XMLTYPE) then
-      return xmltype(result.lob);
+      return lib_xml.parse(result.lob);
     else
       return serialize_result(result);
     end if;
@@ -923,7 +924,7 @@
   function call_function$(p_name  varchar2,
                           p_xargs clob default null) return clob is
   begin
-
+ 
     if p_xargs is null then
       return call_function(p_name => p_name).getclobval();
     else

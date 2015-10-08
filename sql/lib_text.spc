@@ -34,14 +34,24 @@
                  p_end   integer default null,
                  p_delim varchar2 default null) return varchar2;
 
+  -- split[idx]    
   function wrap(p_text  varchar2,
                 p_index integer,
                 p_delim varchar2) return varchar2;
 
+  -- split[idx]    
   function wrap2(p_text   varchar2,
                  p_index  integer,
                  p_delim  varchar2,
                  p_defval varchar2 default null) return varchar2;
+
+  -- split[first]
+  function wrap_first(p_text  varchar2,
+                      p_delim varchar2) return varchar2;
+
+  -- split[last]
+  function wrap_last(p_text  varchar2,
+                     p_delim varchar2) return varchar2;
 
   function decode(p_arg1 varchar2,
                   p_arg2 varchar2,

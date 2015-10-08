@@ -218,7 +218,8 @@
                    p_nsmap varchar2 default null) return varchar2;
 
   -- текстовое содержимое ноды
-  function getText(p_node dbms_xmldom.DOMNode) return varchar2;
+  function getText(p_node   dbms_xmldom.DOMNode,
+                   p_defval varchar2 default null) return varchar2;
 
   -- текстовое содержимое ноды
   function getClob(p_node dbms_xmldom.DOMNode) return clob;
@@ -229,7 +230,8 @@
                    p_nsmap varchar2 default null) return boolean;
 
   -- логическое значение
-  function getBool(p_node dbms_xmldom.DOMNode) return boolean;
+  function getBool(p_node   dbms_xmldom.DOMNode,
+                   p_defval boolean default null) return boolean;
 
   -- число с плавающей точкой
   function getNumber(p_doc   xmltype,
@@ -237,7 +239,8 @@
                      p_nsmap varchar2 default null) return number;
 
   -- число с плавающей точкой
-  function getNumber(p_node dbms_xmldom.DOMNode) return number;
+  function getNumber(p_node   dbms_xmldom.DOMNode,
+                     p_defval number default null) return number;
 
   -- целое число
   function getInteger(p_doc   xmltype,
@@ -245,7 +248,8 @@
                       p_nsmap varchar2 default null) return integer;
 
   -- целое число
-  function getInteger(p_node dbms_xmldom.DOMNode) return integer;
+  function getInteger(p_node   dbms_xmldom.DOMNode,
+                      p_defval integer default null) return integer;
 
   -- дата
   function getDate(p_doc    xmltype,

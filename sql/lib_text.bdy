@@ -151,6 +151,7 @@
     return result;
   end;
 
+  -- split[idx]    
   function wrap(p_text  varchar2,
                 p_index integer,
                 p_delim varchar2) return varchar2 is
@@ -158,6 +159,7 @@
     return split(p_text, p_delim)(p_index);
   end;
 
+  -- split[idx]    
   function wrap2(p_text   varchar2,
                  p_index  integer,
                  p_delim  varchar2,
@@ -165,7 +167,7 @@
   
     a t_array;
   begin
-    
+  
     a := split(p_text, p_delim);
   
     if a.count >= p_index then
@@ -175,11 +177,44 @@
     end if;
   end;
 
+  -- split[first]
+  function wrap_first(p_text  varchar2,
+                      p_delim varchar2) return varchar2 is
+  
+    a t_array;
+  begin
+  
+    a := split(p_text, p_delim);
+  
+    if a.count > 0 then
+      return a(1);
+    else
+      return null;
+    end if;
+  end;
+
+  -- split[last]
+  function wrap_last(p_text  varchar2,
+                     p_delim varchar2) return varchar2 is
+  
+    a t_array;
+  begin
+  
+    a := split(p_text, p_delim);
+  
+    if a.count > 0 then
+      return a(a.count);
+    else
+      return null;
+    end if;
+  end;
+
   function decode(p_arg1 varchar2,
                   p_arg2 varchar2,
                   p_ret1 varchar2,
                   p_ret2 varchar2 default null) return varchar2 is
   begin
+  
     return iif(p_arg1 = p_arg2, p_ret1, p_ret2);
   end;
 
