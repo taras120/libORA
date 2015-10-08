@@ -158,6 +158,23 @@
     return split(p_text, p_delim)(p_index);
   end;
 
+  function wrap2(p_text   varchar2,
+                 p_index  integer,
+                 p_delim  varchar2,
+                 p_defval varchar2 default null) return varchar2 is
+  
+    a t_array;
+  begin
+    
+    a := split(p_text, p_delim);
+  
+    if a.count >= p_index then
+      return a(p_index);
+    else
+      return p_defval;
+    end if;
+  end;
+
   function decode(p_arg1 varchar2,
                   p_arg2 varchar2,
                   p_ret1 varchar2,
@@ -337,8 +354,8 @@
     
       for i in 1 .. length(p_text) - 1 loop
       
-        if is_lower(substr(p_text, i, 1)) and is_upper(substr(p_text, i + 1, 1)) then          
-          
+        if is_lower(substr(p_text, i, 1)) and is_upper(substr(p_text, i + 1, 1)) then
+        
           a.extend;
           a(a.last) := upper(substr(p_text, p + 1, i - p));
           p := i;
@@ -346,7 +363,7 @@
       end loop;
     
       if p < length(p_text) then
-        
+      
         a.extend;
         a(a.last) := upper(substr(p_text, p + 1, length(p_text) - p));
       end if;

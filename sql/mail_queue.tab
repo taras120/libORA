@@ -11,6 +11,8 @@
   smtp_errm VARCHAR2(1000)
 )
 ;
+comment on table MAIL_QUEUE
+  is 'Почтовая очередь';
 comment on column MAIL_QUEUE.id
   is 'ID';
 comment on column MAIL_QUEUE.mail

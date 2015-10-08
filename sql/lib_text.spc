@@ -38,6 +38,11 @@
                 p_index integer,
                 p_delim varchar2) return varchar2;
 
+  function wrap2(p_text   varchar2,
+                 p_index  integer,
+                 p_delim  varchar2,
+                 p_defval varchar2 default null) return varchar2;
+
   function decode(p_arg1 varchar2,
                   p_arg2 varchar2,
                   p_ret1 varchar2,
