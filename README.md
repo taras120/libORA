@@ -1,9 +1,8 @@
 # libORA PL/SQL Library #
 
-General purpose PL/SQL Library
+General purpose PL/SQL library
 
 
 ### Author ###
 
-Taras Lyuklyanchuk  
-http://linkedin.com/in/TarasLyuklyanchuk
+[http://linkedin.com/in/TarasLyuklyanchuk](TarasLyuklyanchuk)
