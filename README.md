@@ -5,4 +5,4 @@ General purpose PL/SQL library
 
 ### Author ###
 
-[TarasLyuklyanchuk](http://linkedin.com/in/TarasLyuklyanchuk)
+[Taras Lyuklyanchuk](http://linkedin.com/in/TarasLyuklyanchuk)
