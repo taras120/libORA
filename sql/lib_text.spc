@@ -153,6 +153,9 @@
 
   function only_alphanum(p_text varchar2) return varchar2;
 
+  -- returns all except numbers
+  function crop_numbers(p_text varchar2) return varchar2;
+
   function split_array(p_arr   t_array,
                        p_delim varchar2) return t_cube;
 

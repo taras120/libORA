@@ -6,16 +6,52 @@
   -- Created : 15.05.2015 0:11:57
   -- Purpose : Large Object Library
 
-  BUFF_SIZE constant integer := 4000;
-
   function split(p_clob  clob,
-                 p_delim varchar2) return types.list is
+                 p_delim varchar2) return types.List is
   
     offset    integer := 1;
     amount    integer;
     clob_len  integer;
     delim_len integer;
-    list      types.list := types.list();
+    list      types.List := types.List();
+  begin
+  
+    if p_clob is not null and p_delim is not null then
+    
+      delim_len := length(p_delim);
+      clob_len  := size_of(p_clob);
+    
+      while offset < clob_len loop
+      
+        amount := instr(p_clob, p_delim, offset);
+      
+        if amount <= 0 then
+          amount := clob_len - offset + 1;
+        else
+          amount := amount - offset;
+        end if;
+      
+        list.extend;
+        dbms_lob.read(lob_loc => p_clob,
+                      amount  => amount,
+                      offset  => offset,
+                      buffer  => list(list.last));
+      
+        offset := offset + amount + delim_len;
+      end loop;
+    end if;
+  
+    return list;
+  end;
+
+  function split$(p_clob  clob,
+                  p_delim varchar2) return types.ClobList is
+  
+    offset    integer := 1;
+    amount    integer;
+    clob_len  integer;
+    delim_len integer;
+    list      types.ClobList := types.ClobList();
   begin
   
     if p_clob is not null and p_delim is not null then
@@ -49,7 +85,7 @@
   -- print clob
   procedure print(p_clob clob) is
   
-    lines      types.list;
+    lines      types.ClobList;
     line_delim varchar2(2);
   begin
   
@@ -63,31 +99,10 @@
       end if;
     
       -- split by lines
-      lines := split(p_clob, line_delim);
+      lines := split$(p_clob, line_delim);
     
       for i in 1 .. lines.count loop
         println(lines(i));
-      end loop;
-    end if;
-  end;
-
-  -- print clob
-  procedure print2(p_clob clob) is
-  
-    amount   integer;
-    offset   integer := 1;
-    buffsize integer := BUFF_SIZE;
-    clobsize integer := size_of(p_clob);
-  begin
-  
-    if p_clob is not null then
-    
-      for i in 1 .. ceil(clobsize / buffsize) loop
-      
-        amount := least(buffsize, clobsize - offset + 1);
-        println(dbms_lob.substr(p_clob, amount, offset));
-      
-        offset := offset + amount;
       end loop;
     end if;
   end;
@@ -104,6 +119,27 @@
   
     if p_xml is not null then
       print(p_xml.getclobval());
+    end if;
+  end;
+
+  -- print very large clob
+  procedure print$(p_clob clob) is
+  
+    amount   integer;
+    offset   integer := 1;
+    buffsize integer := BUFF_SIZE;
+    clobsize integer := size_of(p_clob);
+  begin
+  
+    if p_clob is not null then
+    
+      for i in 1 .. ceil(clobsize / buffsize) loop
+      
+        amount := least(buffsize, clobsize - offset + 1);
+        println(dbms_lob.substr(p_clob, amount, offset));
+      
+        offset := offset + amount;
+      end loop;
     end if;
   end;
 
@@ -246,6 +282,34 @@
                            blob_csid    => p_csid,
                            lang_context => lang_context,
                            warning      => warning);
+  
+    return result;
+  end;
+
+  -- stream to clob conversion
+  function to_clob(p_stream sys.utl_CharacterInputStream) return clob is
+  
+    child    dbms_xmldom.DOMNode;
+    children dbms_xmldom.DOMNodeList;
+    clobNode dbms_xmldom.DOMNode;
+    stream   sys.utl_CharacterInputStream;
+    amount   integer;
+    buff     varchar2(32767);
+    result   clob;
+  begin
+  
+    dbms_lob.createTemporary(result, true);
+  
+    amount := BUFF_SIZE; -- buffer size
+  
+    loop
+      stream.read(buff, amount);
+      exit when amount = 0;
+    
+      dbms_lob.writeAppend(result, length(buff), buff);
+    end loop;
+  
+    stream.close();
   
     return result;
   end;

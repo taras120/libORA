@@ -14,7 +14,7 @@
   XML_FALSE       constant varchar2(10) := 'false';
   DATE_FORMAT     constant varchar2(100) := 'yyyy-mm-dd';
   TIME_FORMAT     constant varchar2(100) := 'hh24:mi:ss';
-  DATETIME_FORMAT constant varchar2(100) := DATE_FORMAT || 'T' || TIME_FORMAT;
+  DATETIME_FORMAT constant varchar2(100) := DATE_FORMAT || const.SPC || TIME_FORMAT;
 
   -- XMLSchema types
   XS_STRING   constant varchar2(100) := 'string';
@@ -57,22 +57,22 @@
                   p_root dbms_xmldom.DOMNode default null);
 
   -- текст->bool
-  function toBool(p_value varchar2) return boolean;
+  function toBool(p_text varchar2) return boolean;
 
   -- текст->дата
-  function toDate(p_value  varchar2,
+  function toDate(p_text   varchar2,
                   p_format varchar2 default DATE_FORMAT) return date;
 
   -- текст->дата+время
-  function toDateTime(p_value  varchar2,
+  function toDateTime(p_text   varchar2,
                       p_format varchar2 default DATETIME_FORMAT) return date;
 
   -- текст->число
-  function toNumber(p_value  varchar2,
+  function toNumber(p_text   varchar2,
                     p_format varchar2 default null) return number;
 
   -- текст->целое число
-  function toInteger(p_value varchar2) return integer;
+  function toInteger(p_text varchar2) return integer;
 
   -- xml boolean
   function xmlBool(p_value boolean) return varchar2;
@@ -170,6 +170,11 @@
   procedure createNode(p_parent dbms_xmldom.DOMNode,
                        p_name   varchar2,
                        p_value  number);
+
+  -- создать дочернюю ноду
+  function createNode$(p_parent dbms_xmldom.DOMNode,
+                       p_name   varchar2,
+                       p_value  clob) return dbms_xmldom.DOMNode;
 
   -- добавить документ как ноду
   function appendChild(p_node  dbms_xmldom.DOMNode,

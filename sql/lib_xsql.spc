@@ -4,7 +4,7 @@
   -- http://bitbucket.org/rtfm/libora
   -- Author  : Taras Lyuklyanchuk
   -- Created : 26.07.2013 11:37:59
-  -- Purpose : XML SQL Reflection Library
+  -- Purpose : XML-SQL Reflection Library
 
   type t_cursor is ref cursor;
 
@@ -25,9 +25,14 @@
                            p_rows#  integer default null,
                            b_close  boolean default true) return xmltype;
 
+  function fetch_as_rowset$(p_cursor t_cursor,
+                            p_name   varchar2,
+                            p_rows#  integer default null,
+                            b_close  boolean default true) return xmltype;
+
   function describe_xml(p_doc xmltype) return lib_sql.t_describe;
 
-  -- SQL-совместимое содержимое ноды
+  -- XML-совместимое содержимое ноды
   function get_value(p_node  dbms_xmldom.DOMNode,
                      p_type# integer) return varchar2;
 

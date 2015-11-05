@@ -12,13 +12,16 @@
   function get_tags(p_templ clob) return t_list;
 
   function get_data_map(p_tags t_list,
-                        p_data xmltype) return types.hashmap;
+                        p_data xmltype) return types.HashMap;
+
+  function get_data_map$(p_tags t_list,
+                         p_data xmltype) return types.ClobHashMap;
 
   function create_report(p_templ varchar2,
                          p_data  xmltype) return varchar2;
 
-  function create_report(p_templ clob,
-                         p_data  xmltype) return clob;
+  function create_report$(p_templ clob,
+                          p_data  xmltype) return clob;
 
 end;
 /

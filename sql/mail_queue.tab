@@ -1,12 +1,12 @@
 ﻿create table MAIL_QUEUE
 (
   id        NUMBER(10) not null,
-  mail      VARCHAR2(64) not null,
-  from_mail VARCHAR2(64),
-  from_name VARCHAR2(64),
+  mail      VARCHAR2(100) not null,
+  from_mail VARCHAR2(100),
+  from_name VARCHAR2(100),
   subject   VARCHAR2(1000),
-  message   VARCHAR2(4000),
-  file_name VARCHAR2(32),
+  message   CLOB,
+  file_name VARCHAR2(1000),
   file_blob BLOB,
   smtp_errm VARCHAR2(1000)
 )

@@ -1,7 +1,7 @@
-﻿------------------------------------------------------
--- Export file for user IBPE@APRICOT                --
--- Created by tlyuklyanchuk on 08.10.2015, 17:13:46 --
-------------------------------------------------------
+﻿-----------------------------------------------------
+-- Export file for user IBPE@APRICOT               --
+-- Created by tlyuklyanchuk on 05.11.2015, 9:07:59 --
+-----------------------------------------------------
 
 set define off
 spool _run.log
@@ -136,6 +136,11 @@ prompt Creating function SQLTEXT
 prompt =========================
 prompt
 @@sqltext.fnc
+prompt
+prompt Creating function SQLTRACE
+prompt ==========================
+prompt
+@@sqltrace.fnc
 prompt
 prompt Creating function TODAY
 prompt =======================

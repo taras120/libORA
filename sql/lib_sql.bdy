@@ -928,9 +928,58 @@
                            b_close  boolean default false) return t_rowset is
   
   begin
+    
     return fetch_as_rowset#(p_cursor# => get_cursor#(p_cursor),
                             p_rows#   => p_rows#,
                             b_close   => b_close);
+  end;
+  
+  function fetch_as_rowset$(p_cursor t_cursor,
+                            p_rows#   integer default null,
+                            b_close   boolean default false) return t_rowset$ is
+  
+    n        integer;
+    column   t_column;
+    describe t_describe;
+    rec$     t_row$;
+    rowset$  t_rowset$ := t_rowset$();
+    val      t_value;
+    cursor#  integer := get_cursor#(p_cursor);
+  begin
+  
+    describe := describe_cursor(cursor#);
+    define_columns(cursor#, describe);
+  
+    n := 0;
+    loop
+      exit when dbms_sql.fetch_rows(cursor#) = 0;
+    
+      inc(n);
+      rec$.delete;
+    
+      for i in 1 .. describe.count loop
+      
+        column := describe(i);
+        val := get_value(cursor#, column);
+        
+        if val.is_lob then        
+          rec$(column.name) := val.lob;
+        else
+          rec$(column.name) := val.text;
+        end if;    
+      end loop;
+    
+      rowset$.extend;
+      rowset$(rowset$.last) := rec$;
+    
+      exit when n >= p_rows#;
+    end loop;
+  
+    if b_close then
+      close_cursor(cursor#);
+    end if;
+  
+    return rowset$;
   end;
 
   procedure bind_variable(p_cursor# integer,
@@ -988,9 +1037,11 @@
 
   function prepare_statemet(p_proc t_procedure) return varchar2 is
   
-    n      integer;
-    param  t_parameter;
-    result varchar2(4000);
+    n            integer;
+    param        t_parameter;
+    result       varchar2(4000);
+    is_func      boolean;
+    is_bool_func boolean;
   
     procedure add(text varchar2,
                   arg1 varchar2 default null,
@@ -1001,13 +1052,27 @@
   
   begin
   
-    if p_proc.is_func then
-      add('begin :0 := %s(', p_proc.name);
+    is_func := p_proc.is_func;
+  
+    if is_func then
+      is_bool_func := p_proc.signature(1).type# = PLS_BOOLEAN;
+    else
+      is_bool_func := false;
+    end if;
+  
+    if is_func then
+    
+      if is_bool_func then
+        add('begin :0 := sys.diutil.bool_to_int(%s(', p_proc.name);
+      else
+        add('begin :0 := %s(', p_proc.name);
+      end if;
+    
     else
       add('begin %s(', p_proc.name);
     end if;
   
-    n := iif(p_proc.is_func, 2, 1);
+    n := iif(is_func, 2, 1);
   
     for i in n .. p_proc.signature.count loop
     
@@ -1021,7 +1086,11 @@
     
     end loop;
   
-    add('); end;');
+    if is_bool_func then
+      add(')); end;');
+    else
+      add('); end;');
+    end if;
   
     return result;
   end;

@@ -25,14 +25,14 @@
   -- отправка письма
   procedure send(p_mail      in varchar2,
                  p_subject   in varchar2,
-                 p_message   in varchar2,
+                 p_message   in clob,
                  p_from_mail in varchar2 default SENDER_MAIL,
                  p_from_name in varchar2 default SENDER_NAME);
 
   -- отправка письма с вложением от имени
   procedure send(p_mail      in varchar2,
                  p_subject   in varchar2,
-                 p_message   in varchar2,
+                 p_message   in clob,
                  p_file_name in varchar2,
                  p_file_blob in blob,
                  p_from_mail in varchar2 default SENDER_MAIL,
@@ -41,7 +41,7 @@
   -- отправка письма с несколькими вложениями
   procedure send(p_mail      in varchar2,
                  p_subject   in varchar2,
-                 p_message   in varchar2,
+                 p_message   in clob,
                  p_attaches  in t_attaches,
                  p_from_mail in varchar2 default SENDER_MAIL,
                  p_from_name in varchar2 default SENDER_NAME);
@@ -49,19 +49,19 @@
   -- постановка в очередь
   procedure enqueue(p_mail    in varchar2,
                     p_subject in varchar2,
-                    p_message in varchar2);
+                    p_message in clob);
 
   -- поставить в очередь от имени
   procedure enqueue(p_mail      in varchar2,
                     p_subject   in varchar2,
-                    p_message   in varchar2,
+                    p_message   in clob,
                     p_from_mail in varchar2,
                     p_from_name in varchar2);
 
   -- поставить в очередь (с вложением)
   procedure enqueue(p_mail      in varchar2,
                     p_subject   in varchar2,
-                    p_message   in varchar2,
+                    p_message   in clob,
                     p_file_name in varchar2,
                     p_file_blob in blob);
 end;

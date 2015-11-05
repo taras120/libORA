@@ -6,11 +6,24 @@
   -- (c) 1981-2014 Taras Lyuklyanchuk
 
   -- constants
-  SPC         constant char(1) := const.SPC;
-  AMP         constant char(1) := const.AMP;
-  CDATA_OPEN  constant varchar2(16) := '<![CDATA[';
-  CDATA_CLOSE constant varchar2(16) := ']]>';
+  CDATA_OPEN  constant varchar2(20) := '<![CDATA[';
+  CDATA_CLOSE constant varchar2(20) := ']]>';
   NLS_NUMERIC constant char(2) := '.,';
+
+  -- special symbols
+  SYM_SPC  constant char(1) := const.SPC;
+  SYM_AMP  constant char(1) := const.AMP;
+  SYM_LT   constant char(1) := '<';
+  SYM_GT   constant char(1) := '>';
+  SYM_QUOT constant char(1) := '"';
+  SYM_APOS constant char(1) := '''';
+
+  -- symbol entities
+  ENT_AMP  constant varchar2(20) := SYM_AMP || 'amp;';
+  ENT_LT   constant varchar2(20) := SYM_AMP || 'lt;';
+  ENT_GT   constant varchar2(20) := SYM_AMP || 'gt;';
+  ENT_QUOT constant varchar2(20) := SYM_AMP || 'quot;';
+  ENT_APOS constant varchar2(20) := SYM_AMP || 'apos;';
 
   -- init
   procedure init is
@@ -103,12 +116,12 @@
   end;
 
   -- текст->bool
-  function toBool(p_value varchar2) return boolean is
+  function toBool(p_text varchar2) return boolean is
   begin
   
-    if lower(p_value) in (lower(XML_TRUE), to_char(const.I_TRUE)) then
+    if lower(p_text) in (lower(XML_TRUE), to_char(const.I_TRUE)) then
       return true;
-    elsif lower(p_value) in (lower(XML_FALSE), to_char(const.I_FALSE)) then
+    elsif lower(p_text) in (lower(XML_FALSE), to_char(const.I_FALSE)) then
       return false;
     else
       return null;
@@ -116,55 +129,65 @@
   end;
 
   -- текст->дата
-  function toDate(p_value  varchar2,
+  function toDate(p_text   varchar2,
                   p_format varchar2 default DATE_FORMAT) return date is
+  
+    format_len integer;
   begin
   
-    return to_date(lib_text.crop(p_value, length(p_format)), p_format);
+    format_len := length(lib_text.crop_numbers(p_format));
+  
+    return to_date(lib_text.crop(p_text, format_len), p_format);
   end;
 
   -- текст->дата+время
-  function toDateTime(p_value  varchar2,
+  function toDateTime(p_text   varchar2,
                       p_format varchar2 default DATETIME_FORMAT) return date is
   
-    value  varchar2(100) := replace(p_value, 'T', SPC);
-    format varchar2(100) := replace(p_format, 'T', SPC);
+    text       varchar2(100) := replace(p_text, 'T', SYM_SPC);
+    format     varchar2(100) := replace(p_format, 'T', SYM_SPC);
+    format_len integer;
   begin
   
-    return to_date(lib_text.crop(value, length(format)), format);
+    format_len := length(lib_text.crop_numbers(format));
+  
+    return to_date(lib_text.crop(text, format_len), format);
+  
+  exception
+    when others then
+      throw('Unparseable date: %s', p_text);
   end;
 
   -- текст->число
-  function toNumber(p_value  varchar2,
+  function toNumber(p_text   varchar2,
                     p_format varchar2 default null) return number is
   begin
   
-    if p_value is null then
+    if p_text is null then
       return null;
     elsif p_format is not null then
-      return to_number(p_value, p_format);
+      return to_number(p_text, p_format);
     else
-      return to_number(p_value);
+      return to_number(p_text);
     end if;
   
   exception
     when INVALID_NUMBER then
-    
-      throw('Invalid number: %s', p_value);
-    
+      throw('Unparseable number: %s', p_text);
     when others then
       raise;
   end;
 
   -- текст->целое число
-  function toInteger(p_value varchar2) return integer is
+  function toInteger(p_text varchar2) return integer is
+  
     val number;
   begin
   
-    val := toNumber(p_value);
+    val := toNumber(p_text);
   
     if val != trunc(val) then
-      throw('Invalid integer: %s', val);
+      throw('An attempt to convert decimal to integer: %s', p_text);
     end if;
   
     return val;
@@ -242,13 +265,17 @@
   begin
   
     if instr(p_xmlns, '=') != 0 then
+    
       return p_xmlns;
+    
     elsif p_xmlns is not null then
+    
       if p_prefix is null then
         return sprintf('xmlns="%s"', p_xmlns);
       else
         return sprintf('xmlns:%s="%s"', p_prefix, p_xmlns);
       end if;
+    
     else
       return null;
     end if;
@@ -279,36 +306,38 @@
   -- xml Entity
   function entity(p_text varchar2) return varchar2 is
   
-    text varchar2(4000) := trim(p_text);
+    text varchar2(32767) := trim(p_text);
   begin
   
-    text := replace(text, AMP, AMP || 'amp;');
-    text := replace(text, '<', AMP || 'lt;');
-    text := replace(text, '>', AMP || 'gt;');
-    text := replace(text, '"', AMP || 'quot;');
-    text := replace(text, '''', AMP || 'apos;');
+    text := replace(text, SYM_AMP, ENT_AMP);
+    text := replace(text, SYM_LT, ENT_LT);
+    text := replace(text, SYM_GT, ENT_GT);
+    text := replace(text, SYM_QUOT, ENT_QUOT);
+    text := replace(text, SYM_APOS, ENT_APOS);
   
     return text;
   end;
 
   -- xml unentity
   function unentity(p_text varchar2) return varchar2 is
-    text varchar2(4000) := p_text;
+  
+    text varchar2(32767) := p_text;
   begin
   
     if text is not null then
     
-      text := replace(text, AMP || 'amp;', AMP);
-      text := replace(text, AMP || 'lt;', '<');
-      text := replace(text, AMP || 'gt;', '>');
-      text := replace(text, AMP || 'quot;', '"');
-      text := replace(text, AMP || 'apos;', '''');
+      text := replace(text, ENT_AMP, SYM_AMP);
+      text := replace(text, ENT_LT, SYM_LT);
+      text := replace(text, ENT_GT, SYM_GT);
+      text := replace(text, ENT_QUOT, SYM_QUOT);
+      text := replace(text, ENT_APOS, SYM_APOS);
     
       -- фиксим косяки компаса
       for i in 2 .. length(text) - 1 loop
       
-        if substr(text, i, 1) = '"' then
-          if substr(text, i + 1, 1) not in (SPC, '>') and substr(text, i - 1, 1) not in ('=') then
+        if substr(text, i, 1) = SYM_QUOT then
+          if substr(text, i + 1, 1) not in (SYM_SPC, SYM_GT) and
+             substr(text, i - 1, 1) not in ('=') then
             text := substr(text, 1, i - 1) || substr(text, i + 1);
           end if;
         end if;
@@ -329,6 +358,7 @@
                   p_doc4 xmltype default null) return xmltype is
     xml xmltype;
   begin
+  
     select xmlelement("root", xmlconcat(p_doc1, p_doc2, p_doc3, p_doc4)) into xml from dual;
     return xml;
   end;
@@ -338,7 +368,7 @@
                    p_xpath varchar2,
                    p_nsmap varchar2 default null) return xmltype is
   
-    nsmap varchar2(4000) := getNSmap(p_nsmap);
+    nsmap varchar2(32767) := getNSmap(p_nsmap);
   begin
   
     -- extract
@@ -353,12 +383,14 @@
   -- создать документ
   function createDoc(p_clob clob) return dbms_xmldom.DOMDocument is
   begin
+  
     return dbms_xmldom.newDOMDocument(xmltype(p_clob));
   end;
 
   -- создать документ
   function createDoc(p_doc xmltype) return dbms_xmldom.DOMDocument is
   begin
+  
     return dbms_xmldom.newDOMDocument(p_doc);
   end;
 
@@ -507,6 +539,23 @@
     createNode(p_parent => p_parent, p_name => p_name, p_value => xmlNumber(p_value));
   end;
 
+  -- создать дочернюю ноду
+  function createNode$(p_parent dbms_xmldom.DOMNode,
+                       p_name   varchar2,
+                       p_value  clob) return dbms_xmldom.DOMNode is
+  
+    node dbms_xmldom.DOMNode;
+  begin
+  
+    node := createNode(p_parent, p_name);
+  
+    if p_value is not null then
+      setClob(node, p_value);
+    end if;
+  
+    return node;
+  end;
+
   -- добавить документ как ноду
   function appendChild(p_node  dbms_xmldom.DOMNode,
                        p_child xmltype) return dbms_xmldom.DOMNode is
@@ -540,9 +589,8 @@
     importList dbms_xmldom.DOMNodeList;
   begin
   
-    doc       := dbms_xmldom.getOwnerDocument(p_node);
-    childRoot := createNode(p_node, p_name);
-  
+    doc        := dbms_xmldom.getOwnerDocument(p_node);
+    childRoot  := createNode(p_node, p_name);
     importList := dbms_xmldom.getChildNodes(getRootNode(createDoc(p_child)));
   
     -- rows
@@ -562,30 +610,35 @@
                         p_name  varchar2,
                         p_child xmltype) is
   begin
+  
     freeNode(appendChild(p_node, p_name, p_child));
   end;
 
   -- уничтожить ноду
   procedure freeNode(p_node dbms_xmldom.DOMNode) is
   begin
+  
     dbms_xmldom.freeNode(p_node);
   end;
 
   -- документ, владелец ноды
   function ownerDoc(p_node dbms_xmldom.DOMNode) return dbms_xmldom.DOMDocument is
   begin
+  
     return dbms_xmldom.getOwnerDocument(p_node);
   end;
 
   -- проверка на Null
   function isNull(p_node dbms_xmldom.DOMNode) return boolean is
   begin
+  
     return dbms_xmldom.isNull(p_node);
   end;
 
   -- проверка на Null
   function isNotNull(p_node dbms_xmldom.DOMNode) return boolean is
   begin
+  
     return not isNull(p_node);
   end;
 
@@ -678,19 +731,14 @@
                    p_xpath varchar2,
                    p_nsmap varchar2 default null) return varchar2 is
   
-    xpath varchar2(1000);
-    nsmap varchar2(1000);
+    xpath varchar2(32767) := p_xpath;
+    nsmap varchar2(32767) := getNSmap(p_nsmap);
   begin
   
     -- xpath
-    if instr(p_xpath, '@') = 0 then
-      xpath := sprintf('%s/text()', p_xpath);
-    else
-      xpath := p_xpath;
+    if instr(xpath, '@') = 0 and instr(xpath, '/text()') = 0 then
+      xpath := sprintf('(%s/text())[1]', xpath);
     end if;
-  
-    -- nsmap
-    nsmap := getNSmap(p_nsmap);
   
     if p_doc.existsNode(xpath, nsmap) != 0 then
       return unEntity(p_doc.extract(xpath, nsmap).getStringVal());
@@ -730,60 +778,6 @@
   
     return nvl(result, p_defval);
   end;
-
-  /*
-   -- текстовое содержимое ноды  
-   function getClob(p_node dbms_xmldom.DOMNode) return clob is
-  
-     child    dbms_xmldom.DOMNode;
-     children dbms_xmldom.DOMNodeList;
-     clobNode dbms_xmldom.DOMNode;
-     stream   sys.utl_CharacterInputStream;
-     amount   integer;
-     buff     varchar2(32767);
-     result   clob;
-   begin
-  
-     if dbms_xmldom.hasChildNodes(p_node) then
-  
-       children := dbms_xmldom.getChildNodes(p_node);
-  
-       for i in 0 .. dbms_xmldom.getLength(children) - 1 loop
-  
-         child := dbms_xmldom.item(children, i);
-  
-         if dbms_xmldom.getNodeType(child) in
-            (dbms_xmldom.TEXT_NODE, dbms_xmldom.CDATA_SECTION_NODE) then
-  
-           clobNode := child;
-           exit;
-         end if;
-       end loop;
-  
-     else
-       clobNode := p_node;
-     end if;
-  
-     dbms_lob.createTemporary(result, true);
-  
-     stream := dbms_xmldom.getNodeValueAsCharacterStream(clobNode);
-  
-     -- read stream
-     amount := 4000;
-     loop
-       stream.read(buff, amount);
-       exit when amount = 0;
-  
-       dbms_lob.writeAppend(result, length(buff), buff);
-       --offset := offset + length(buff);
-     end loop;
-  
-     stream.close();
-  
-     return result;
-  
-   end;
-  */
 
   -- текстовое содержимое ноды
   function getClob(p_node dbms_xmldom.DOMNode) return clob is
@@ -887,7 +881,7 @@
                    p_format varchar2 default DATE_FORMAT) return date is
   begin
   
-    return toDate(p_value => getText(p_doc, p_xpath), p_format => p_format);
+    return toDate(p_text => getText(p_doc, p_xpath), p_format => p_format);
   end;
 
   -- дата
@@ -895,7 +889,7 @@
                    p_format varchar2 default DATE_FORMAT) return date is
   begin
   
-    return toDate(p_value => getText(p_node), p_format => p_format);
+    return toDate(p_text => getText(p_node), p_format => p_format);
   end;
 
   -- дата+время
@@ -904,7 +898,7 @@
                        p_format varchar2 default DATETIME_FORMAT) return date is
   begin
   
-    return toDateTime(p_value => getText(p_doc, p_xpath), p_format => p_format);
+    return toDateTime(p_text => getText(p_doc, p_xpath), p_format => p_format);
   end;
 
   -- дата+время
@@ -912,7 +906,7 @@
                        p_format varchar2 default DATETIME_FORMAT) return date is
   begin
   
-    return toDateTime(p_value => getText(p_node), p_format => p_format);
+    return toDateTime(p_text => getText(p_node), p_format => p_format);
   end;
 
   -- прочитать атрибут
@@ -926,6 +920,7 @@
     
       element := dbms_xmldom.makeElement(p_node);
       return dbms_xmldom.getAttribute(element, p_attr);
+    
     else
       return null;
     end if;
@@ -960,7 +955,7 @@
   -- нода->xmltype
   function getXmlType(p_node dbms_xmldom.DOMNode) return xmltype is
   begin
-    
+  
     return dbms_xmldom.getXmlType(ownerDoc(p_node));
   end;
 
@@ -1080,6 +1075,7 @@
   procedure setBool(p_node  dbms_xmldom.DOMNode,
                     p_value boolean) is
   begin
+  
     setText(p_node, xmlBool(p_value));
   end;
 
@@ -1087,6 +1083,7 @@
   procedure setInteger(p_node  dbms_xmldom.DOMNode,
                        p_value integer) is
   begin
+  
     setText(p_node, p_value);
   end;
 
@@ -1094,6 +1091,7 @@
   procedure setNumber(p_node  dbms_xmldom.DOMNode,
                       p_value number) is
   begin
+  
     setText(p_node, xmlNumber(p_value));
   end;
 
@@ -1101,6 +1099,7 @@
   procedure setDate(p_node  dbms_xmldom.DOMNode,
                     p_value date) is
   begin
+  
     setText(p_node, xmlDate(p_value));
   end;
 
@@ -1108,6 +1107,7 @@
   procedure setDateTime(p_node  dbms_xmldom.DOMNode,
                         p_value date) is
   begin
+  
     setText(p_node, xmlDateTime(p_value));
   end;
 
@@ -1129,6 +1129,7 @@
   -- корневая нода
   function getRootNode(p_doc dbms_xmldom.DOMDocument) return dbms_xmldom.DOMNode is
   begin
+  
     return dbms_xmldom.makeNode(dbms_xmldom.getDocumentElement(p_doc));
   end;
 

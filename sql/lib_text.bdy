@@ -638,8 +638,27 @@
     return result;
   end;
 
+  -- returns all except numbers
+  function crop_numbers(p_text varchar2) return varchar2 is
+  
+    result varchar2(32767);
+  begin
+  
+    if p_text is not null then
+    
+      for i in 1 .. length(p_text) loop
+        if instr(DIGITS, substr(p_text, i, 1)) = 0 then
+          concat(result, substr(p_text, i, 1));
+        end if;
+      end loop;
+    end if;
+  
+    return result;
+  end;
+
   function split_array(p_arr   t_array,
                        p_delim varchar2) return t_cube is
+  
     result t_cube := t_cube();
   begin
   
@@ -654,6 +673,7 @@
 
   function singularity(p_arr   t_array,
                        p_delim varchar2) return integer is
+  
     v_cube t_cube;
     v_1st  t_array;
     result integer := 0;

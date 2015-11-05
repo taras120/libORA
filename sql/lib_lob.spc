@@ -6,8 +6,13 @@
   -- Created : 15.05.2015 0:11:57
   -- Purpose : Large Object Library
 
+  BUFF_SIZE constant integer := 4000;
+
   function split(p_clob  clob,
                  p_delim varchar2) return types.list;
+
+  function split$(p_clob  clob,
+                  p_delim varchar2) return types.ClobList;
 
   -- print blob
   procedure print(p_blob blob);
@@ -17,6 +22,9 @@
 
   -- print xmltype
   procedure print(p_xml xmltype);
+
+  -- print very large clob
+  procedure print$(p_clob clob);
 
   function substr(p_text   clob,
                   p_offset integer,
@@ -54,12 +62,15 @@
   -- blob to clob conversion
   function to_clob(p_blob blob) return clob;
 
-  -- clob to blob conversion
-  function to_blob(p_clob clob) return blob;
-
   -- blob to clob conversion
   function to_clob(p_blob blob,
                    p_csid integer) return clob;
+
+  -- stream to clob conversion
+  function to_clob(p_stream sys.utl_CharacterInputStream) return clob;
+
+  -- clob to blob conversion
+  function to_blob(p_clob clob) return blob;
 
   -- blob to clob conversion
   function to_blob(p_clob clob,

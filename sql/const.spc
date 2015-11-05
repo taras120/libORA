@@ -28,7 +28,7 @@
   DATE_SECOND    constant number := DATE_MINUTE / SEC_PER_MINUTE;
 
   -- charset id's
-  UTF8    constant varchar2(16) := 'UTF8';
+  UTF8    constant varchar2(10) := 'UTF8';
   CS_UTF8 constant integer := nls_charset_id(UTF8);
 
 end;

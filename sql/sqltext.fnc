@@ -1,6 +1,7 @@
 ﻿create or replace function sqltext(p_errm varchar2 default sqlerrm)
   return varchar2 is
-  text varchar2(1000);
+  
+  text varchar2(4000);
 begin
 
   -- Returns truncated error message text
@@ -8,7 +9,7 @@ begin
   -- http://bitbucket.org/rtfm/libora
   -- (c) 1981-2014 Taras Lyuklyanchuk
 
-  text := trim(substr(p_errm, 1, 1000));
+  text := trim(substr(p_errm, 1, 4000));
 
   loop
     if text like 'ORA-%:%' then

@@ -74,6 +74,7 @@
   
     result types.hashmap;
   begin
+    
     for q in (select t.parameter, t.value
                 from nls_session_parameters t
               union

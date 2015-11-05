@@ -100,9 +100,11 @@
 
   -- row hash map (column=value)
   type t_row is table of varchar2(4000) index by varchar2(30);
+  type t_row$ is table of clob index by varchar2(30);
 
   -- rowset (array of rows)
   type t_rowset is table of t_row;
+  type t_rowset$ is table of t_row$;
 
   -- composit value
   type t_value is record(
@@ -244,6 +246,10 @@
   function fetch_as_rowset(p_cursor t_cursor,
                            p_rows#  integer default null,
                            b_close  boolean default false) return t_rowset;
+
+  function fetch_as_rowset$(p_cursor t_cursor,
+                            p_rows#  integer default null,
+                            b_close  boolean default false) return t_rowset$;
 
   function execute_query#(p_stmt varchar2) return integer;
 
